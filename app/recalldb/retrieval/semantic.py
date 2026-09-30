@@ -1,20 +1,61 @@
 """
 Semantic dense vector retrieval engine for RecallDB.
-Computes vectorized cosine similarities using SIMD/NumPy dot products.
+Features in-memory matrix caching, incremental synchronization,
+and SIMD/NumPy vectorized dot-product search.
 """
 
-from typing import List, Tuple, Optional
+from typing import List, Tuple, Optional, Dict
 import numpy as np
+import time
 from recalldb.storage.db import Database, blob_to_embedding
 from recalldb.embeddings.base import EmbeddingProvider
 
 
 class SemanticRetriever:
-    """Executes dense vector similarity search over embedded memory records."""
+    """
+    Executes fast vector similarity search using cached normalized matrices.
+    Avoids O(N) disk I/O and BLOB deserialization per query.
+    """
 
     def __init__(self, db: Database, embedding_provider: EmbeddingProvider):
         self.db = db
         self.embedding_provider = embedding_provider
+        self._cached_ids: List[str] = []
+        self._cached_matrix: Optional[np.ndarray] = None
+        self._last_count: int = -1
+
+    def _ensure_index(self) -> None:
+        """Check if memory count changed and synchronize in-memory vector cache."""
+        current_count = self.db.count()
+        if current_count == self._last_count and self._cached_matrix is not None:
+            return
+
+        with self.db.get_connection() as conn:
+            # Pre-filter: only active or superseded memories (exclude archived)
+            sql = "SELECT id, embedding FROM memories WHERE embedding IS NOT NULL AND lifecycle_state != 'archived'"
+            cur = conn.execute(sql)
+            rows = cur.fetchall()
+
+        ids = []
+        vectors = []
+        for row in rows:
+            emb = blob_to_embedding(row["embedding"])
+            if emb is not None:
+                ids.append(row["id"])
+                vectors.append(emb)
+
+        if vectors:
+            matrix = np.array(vectors, dtype=np.float32)
+            # Pre-normalize matrix rows for unit-vector dot product
+            norms = np.linalg.norm(matrix, axis=1, keepdims=True)
+            norms[norms == 0] = 1.0
+            self._cached_matrix = matrix / norms
+            self._cached_ids = ids
+        else:
+            self._cached_matrix = None
+            self._cached_ids = []
+
+        self._last_count = current_count
 
     def search(
         self,
@@ -26,6 +67,11 @@ class SemanticRetriever:
         Compute cosine similarity between query and all stored memory vectors.
         Returns list of (memory_id, cosine_similarity) tuples, sorted descending.
         """
+        self._ensure_index()
+
+        if self._cached_matrix is None or len(self._cached_ids) == 0:
+            return []
+
         if query_vector is None:
             query_vector = self.embedding_provider.embed_text(query)
 
@@ -34,37 +80,16 @@ class SemanticRetriever:
         if q_norm > 0:
             q_vec = q_vec / q_norm
 
-        results = []
-        with self.db.get_connection() as conn:
-            cur = conn.execute("SELECT id, embedding FROM memories WHERE embedding IS NOT NULL")
-            rows = cur.fetchall()
-            if not rows:
-                return []
+        # Vectorized dot products over pre-normalized cached matrix
+        scores = np.dot(self._cached_matrix, q_vec)
 
-            ids = []
-            vectors = []
-            for row in rows:
-                emb = blob_to_embedding(row["embedding"])
-                if emb is not None:
-                    ids.append(row["id"])
-                    vectors.append(emb)
+        # Retrieve top_k indices efficiently using argpartition if large, or argsort
+        k = min(top_k, len(scores))
+        if len(scores) > k * 4:
+            top_indices = np.argpartition(scores, -k)[-k:]
+            top_indices = top_indices[np.argsort(-scores[top_indices])]
+        else:
+            top_indices = np.argsort(-scores)[:k]
 
-            if not vectors:
-                return []
-
-            matrix = np.array(vectors, dtype=np.float32)
-            # Normalize matrix rows if needed
-            norms = np.linalg.norm(matrix, axis=1, keepdims=True)
-            norms[norms == 0] = 1.0
-            norm_matrix = matrix / norms
-
-            # Batch dot products
-            scores = np.dot(norm_matrix, q_vec)
-
-            # Map to results
-            for mem_id, score in zip(ids, scores):
-                results.append((mem_id, float(score)))
-
-        # Sort descending by cosine similarity
-        results.sort(key=lambda x: x[1], reverse=True)
-        return results[:top_k]
+        results = [(self._cached_ids[idx], float(scores[idx])) for idx in top_indices]
+        return results

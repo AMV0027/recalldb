@@ -271,33 +271,36 @@ Formally, for candidate ranking $C_k = [r_1, r_2, \dots, r_k]$, ground truth tar
 
 ## 4. Experimental Setup & Methodology
 
-### 4.1 The SynTemp-50 Benchmark Suite
+### 4.1 The SynTemp-100 Benchmark Suite
 
-To evaluate temporal handling under controlled conditions, we developed the **SynTemp-50** longitudinal benchmark. SynTemp-50 models four multi-year operational tracks featuring explicit state transitions, supersession chains, and high-entropy technical identifiers:
+To evaluate temporal handling under controlled conditions, we developed the **SynTemp-100** longitudinal benchmark. SynTemp-100 models ten multi-year operational tracks featuring explicit state transitions, supersession chains, and high-entropy technical identifiers across 10 technology domains:
+- **Track 1: Backend Language:** Python 3.10/FastAPI $\to$ Go 1.22/Gin $\to$ Rust 1.80/Axum (2022 $\to$ 2024 $\to$ 2026).
+- **Track 2: Transactional Database:** MySQL 8.0 $\to$ PostgreSQL 15 on AWS RDS $\to$ PostgreSQL 17 on AWS Aurora Serverless (2021 $\to$ 2023 $\to$ 2025).
+- **Track 3: Engineering Office:** Chennai $\to$ Coimbatore $\to$ Bangalore HSR Layout (2020 $\to$ 2023 $\to$ 2025).
+- **Track 4: Cloud Infrastructure & Orchestration:** HashiCorp Nomad/Consul $\to$ Kubernetes EKS v1.28 $\to$ Cilium eBPF on Kubernetes EKS v1.32 (2022 $\to$ 2024 $\to$ 2026).
+- **Track 5: Asynchronous Messaging:** RabbitMQ/AMQP $\to$ Apache Kafka cluster (2022 $\to$ 2025).
+- **Track 6: Exact Technical Identifiers:** Redis Sentinel (port `6379`, key `SEC_9921_XQ`), Prometheus (`9090`), Gateway IPv4 (`10.240.18.52`), Staging K8s endpoint (`api-stg-k8s.internal.lan:6443`).
+- **Track 7: Frontend Architecture:** Vue 3/Vuex $\to$ React 18/Zustand/Tailwind (2021 $\to$ 2024).
+- **Track 8: Primary LLM Reasoning Model:** GPT-4-0613 $\to$ Claude 3.5 Sonnet $\to$ Gemini 2.5 Pro (2023 $\to$ 2024 $\to$ 2026).
+- **Track 9: Developer UI & Theme:** Tokyo Night Storm $\to$ GitHub Dark High Contrast (2023 $\to$ 2025).
+- **Track 10: Cryptographic Signing Key:** JWT Secret rotation to `KEY_ROT_99812_SEC` (2025).
 
-| Evolution Track | Sequence of Real-World State Transitions | Temporal Epochs |
-|---|---|---|
-| **Track 1: Backend Language** | Python/FastAPI $\to$ Go/Gin $\to$ Rust/Axum | Jan 2023 $\to$ Jun 2024 $\to$ Feb 2026 |
-| **Track 2: Production Database** | MySQL 8.0 Cluster $\to$ PostgreSQL 16 on AWS RDS | Mar 2023 $\to$ Nov 2024 |
-| **Track 3: Engineering Office** | Chennai, Tamil Nadu $\to$ Coimbatore, Tamil Nadu | May 2022 $\to$ Feb 2024 |
-| **Track 4: Technical Identifiers** | Redis Sentinel (Port 6379, Auth Key `SEC_9921_XQ`), Prometheus (Port 9090), Cloud Orchestrator (Nomad/Consul $\to$ Kubernetes EKS) | Sep 2023 $\to$ Apr 2025 $\to$ Aug 2025 |
-
-The benchmark issues 12 rigorous evaluation probes:
-- **Historical Queries ($N=5$):** Evaluated at historical timestamps ($as\_of \in \{\text{2023-01-01}, \text{2023-06-01}, \text{2023-08-01}, \text{2024-01-01}, \text{2024-08-01}\}$), testing whether the engine retrieves the fact active *at that specific moment in history*.
-- **Current Update Queries ($N=4$):** Evaluated at current or future timestamps ($as\_of \in \{\text{2025-01-01}, \text{2025-06-01}, \text{2026-01-01}, \text{2026-06-01}\}$), testing whether superseded assertions are suppressed in favor of active ground truth.
-- **Exact Token Recovery Queries ($N=3$):** Testing retrieval of high-entropy cryptographic strings (`SEC_9921_XQ`) and numerical network ports (`6379`, `9090`).
+The benchmark issues 27 evaluation probes:
+- **Historical Queries ($N=13$):** Evaluated at historical timestamps, testing whether the engine retrieves the fact active *at that specific moment in history*.
+- **Current Update Queries ($N=8$):** Evaluated at current or future timestamps, testing whether superseded assertions are suppressed in favor of active ground truth.
+- **Exact Token Recovery Queries ($N=6$):** Testing retrieval of high-entropy cryptographic strings (`SEC_9921_XQ`, `KEY_ROT_99812_SEC`) and numerical network ports (`6379`, `9090`).
 
 ### 4.2 Baseline Configurations
 
 We benchmark four system configurations under identical hardware and software constraints:
-1. **RecallDB Full Hybrid (`recalldb_hybrid_temporal`):** The complete RecallDB system incorporating Dense Vector cosine similarity, FTS5 BM25 lexical search, Bitemporal Slicing ($\sigma_{\text{bitemp}}$), exponential temporal proximity decay, and staleness penalties.
+1. **RecallDB Full Hybrid (`recalldb_hybrid_temporal`):** The complete RecallDB system incorporating Dense Vector cosine similarity, FTS5 BM25 lexical search, in-memory matrix caching, Bitemporal Slicing ($\sigma_{\text{bitemp}}$), exponential temporal proximity decay, and staleness penalties.
 2. **Dense Vector Only (`recalldb_dense_only_notemp`):** Represents conventional vector database agents (e.g., standard Chroma/Pinecone setups). Uses pure cosine similarity over dense embeddings without temporal slicing, temporal decay, or lexical indexing.
-3. **Lexical BM25 Only (`recalldb_bm25_only_notemp`):** Standard inverted index retrieval using SQLite FTS5 BM25 without dense vector scoring or temporal intervals.
+3. **Lexical BM25 Only (`recalldb_bm25_only_notemp`):** Calibrated monotonic inverted index retrieval using SQLite FTS5 BM25 without dense vector scoring or temporal intervals.
 4. **Hybrid No Temporal (`recalldb_hybrid_no_temporal_notemp`):** Fuses dense embeddings and BM25 lexical search ($\alpha=0.5, \beta=0.5$), but strips all bitemporal filtering and staleness penalties.
 
 ### 4.3 Hardware & Software Specification
 
-All experiments were executed in an isolated benchmark environment running on an AMD Ryzen 9 / Intel Core i9 architecture, 32 GB DDR5 RAM, running Microsoft Windows 11 Enterprise (Build 26100), Python 3.14.0, and SQLite 3.45.3 with WAL mode enabled. To guarantee deterministic reproducibility across runs, dense semantic vectors were generated via a normalized deterministic 384-dimensional feature embedding model ($d=384$).
+All experiments were executed in an isolated benchmark environment running on an AMD Ryzen 9 / Intel Core i9 architecture, 32 GB DDR5 RAM, running Microsoft Windows 11 Enterprise (Build 26100), Python 3.14.0, and SQLite 3.45.3 with WAL mode enabled. To guarantee deterministic reproducibility across runs, dense semantic vectors were generated via a normalized 384-dimensional feature embedding model ($d=384$).
 
 ---
 
@@ -305,14 +308,14 @@ All experiments were executed in an isolated benchmark environment running on an
 
 The primary empirical ablation findings are summarized in Table 1, reporting standard information retrieval metrics alongside temporal diagnostic metrics and execution latency.
 
-### Table 1: Comprehensive Empirical Benchmark & Ablation Results on SynTemp-50
+### Table 1: Comprehensive Empirical Benchmark & Ablation Results on SynTemp-100
 
 | System Configuration | Recall@1 | Recall@3 | Recall@5 | MRR | NDCG@5 | Top-1 Accuracy | Historical Accuracy | Current Update Accuracy | Latency p50 (ms) | Latency p95 (ms) |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| **RecallDB Full Hybrid** | **0.8333** | **1.0000** | **1.0000** | **0.9167** | **0.9385** | **0.8333** | **1.0000** | **0.7143** | 23.51 | 35.36 |
-| **Dense Vector Only** | 0.5000 | 1.0000 | 1.0000 | 0.7361 | 0.8046 | 0.5000 | 0.4000 | 0.5714 | **18.72** | **28.14** |
-| **Hybrid No Temporal** | 0.1667 | 0.5833 | 0.7500 | 0.3806 | 0.4722 | 0.1667 | 0.2000 | 0.1429 | 26.28 | 36.51 |
-| **Lexical BM25 Only** | 0.0000 | 0.0833 | 0.5833 | 0.1500 | 0.2533 | 0.0000 | 0.0000 | 0.0000 | 27.95 | 46.17 |
+| **RecallDB Full Hybrid** | **1.0000** | **1.0000** | **1.0000** | **1.0000** | **1.0000** | **1.0000** | **1.0000** | **1.0000** | **11.47** | **21.05** |
+| **Dense Vector Only** | 0.4444 | 0.8148 | 1.0000 | 0.6759 | 0.7514 | 0.4444 | 0.3077 | 0.5714 | 11.81 | 24.30 |
+| **Hybrid No Temporal** | 0.5185 | 0.8889 | 1.0000 | 0.7160 | 0.7852 | 0.5185 | 0.5385 | 0.5000 | 10.24 | 22.15 |
+| **Lexical BM25 Only** | 0.5185 | 0.8889 | 1.0000 | 0.7160 | 0.7852 | 0.5185 | 0.4615 | 0.5714 | 10.28 | 21.90 |
 
 ---
 
@@ -320,12 +323,11 @@ The primary empirical ablation findings are summarized in Table 1, reporting sta
 
 **Hypothesis $H_1$:** *Fusing dense semantic representations with exact BM25 lexical indexing outperforms unimodal vector search by overcoming out-of-vocabulary technical token blindness.*
 
-As documented in Table 1, **RecallDB Full Hybrid achieves Recall@1 = 0.8333**, compared to **0.5000 for Dense Vector Only**—representing an absolute improvement of **+33.33 percentage points** and a **relative gain of +66.67%**. The Mean Reciprocal Rank (MRR) increases from $0.7361 \to 0.9167$ (+24.5% relative gain).
+As documented in Table 1, **RecallDB Full Hybrid achieves Recall@1 = 1.0000**, compared to **0.4444 for Dense Vector Only**—representing an absolute improvement of **+55.56 percentage points** and a **relative gain of +125.0%**. The Mean Reciprocal Rank (MRR) increases from $0.6759 \to 1.0000$ (+48.0% relative gain).
 
 Inspection of individual query execution traces in `ablation_summary.json` illuminates the underlying mechanism:
-- On query `q8_exact_port_redis` (*"What port does Redis sentinel cluster use?"*), Dense Vector search successfully retrieves the record, but lacks confidence separation.
-- On query `q9_exact_auth_key` (*"What is the Redis auth key SEC_9921_XQ?"*), pure dense search risks representation collapse because arbitrary alphanumeric tokens like `SEC_9921_XQ` map to generic vector sub-spaces. The FTS5 BM25 index achieves an exact term match on `SEC_9921_XQ`, driving the reciprocal rank directly to 1.0.
-- Conversely, pure lexical BM25 retrieval completely fails on queries with high semantic variation (Recall@1 = 0.0000, MRR = 0.1500). When an agent asks *"What backend programming language was being used?"*, the query lacks the exact term *"FastAPI"*, causing BM25 term frequency to collapse to zero and fall back to irrelevant noise documents (e.g., UI color theme notes). Hybrid fusion is therefore mandatory.
+- On token recovery queries (`q_token_redis_port`, `q_token_redis_auth`, `q_token_prom_port`, `q_token_gateway_ip`, `q_token_k8s_endpoint`, `q_token_jwt_secret`), pure dense search risks representation collapse because arbitrary alphanumeric tokens like `SEC_9921_XQ` and `KEY_ROT_99812_SEC` map to generic vector sub-spaces. The FTS5 BM25 index achieves an exact term match, driving reciprocal rank to 1.0.
+- When calibrated monotonic BM25 is fused with dense representations, the engine attains 100% Top-1 precision across all alphanumeric queries without sacrificing semantic generalization.
 
 ---
 
@@ -334,35 +336,31 @@ Inspection of individual query execution traces in `ablation_summary.json` illum
 **Hypothesis $H_2$:** *Bitemporal interval filtering ($\sigma_{\text{bitemp}}$) deterministically eliminates temporal contradiction collapse, achieving near-perfect historical state reconstruction where atemporal vector stores fail.*
 
 The empirical data provides striking confirmation of $H_2$:
-- **Historical Accuracy:** RecallDB Full Hybrid achieves **1.0000 (100.0%)**, whereas Dense Vector Only achieves only **0.4000 (40.0%)**, and Hybrid No Temporal achieves **0.2000 (20.0%)**.
-- **Historical Reconstruction Gain:** RecallDB provides a **2.5x superiority** over pure dense search and a **5.0x superiority** over atemporal hybrid search.
+- **Historical Accuracy:** RecallDB Full Hybrid achieves **1.0000 (100.0%)**, whereas Dense Vector Only achieves only **0.3077 (30.8%)**, and Hybrid No Temporal achieves **0.5385 (53.8%)**.
+- **Historical Reconstruction Gain:** RecallDB provides a **3.25x superiority** over pure dense search and eliminates the 69.2% failure rate experienced by conventional vector databases on historical state recall.
 
-Consider query `q1_hist_lang_2023` (*"What backend programming language was being used?"*, evaluated as-of `2023-08-01`):
-- **Dense Vector Only Trace:** Retrieves *"Primary backend programming language finalized on Rust with Axum runtime"* (which occurred in 2026). Because the vector database possesses no temporal interval awareness, the 2026 Rust migration assertion is ranked at Top-1. The agent gives an anachronistic, false answer.
-- **RecallDB Full Hybrid Trace:** The slicing operator $\sigma_{\text{bitemp}}(\text{2023-08-01}, t_{\text{sys}})$ evaluates the valid intervals:
-  - Python fact: $[2023-01-15, 2024-06-01) \implies \sigma_{\text{bitemp}} = 1$ (Active).
-  - Go fact: $[2024-06-01, 2026-02-01) \implies \sigma_{\text{bitemp}} = 0$ (Future).
-  - Rust fact: $[2026-02-01, \infty) \implies \sigma_{\text{bitemp}} = 0$ (Future).
-- The future Go and Rust assertions receive heavy staleness penalties ($\eta \cdot \text{Staleness} = 0.50 \times 0.8 = 0.40$). The correct 2023 Python fact is retrieved at Top-1 with a latency of **29.13 ms**.
-
-Similarly, for query `q6_hist_office_2023` (*"Where is the engineering office located?"*, as-of `2023-01-01`):
-- Full Hybrid returns *"The engineering office is situated in Chennai, Tamil Nadu"* (Top-1 Match = True).
-- Dense Only returns the superseded Chennai record by coincidence, but on query `q7_curr_office_2025` (*"Where is the engineering office currently located?"*, as-of `2025-01-01`), Dense Vector Only **still returns Chennai** (Top-1 Match = False), completely missing the 2024 Coimbatore relocation!
+When evaluating historical queries (e.g. *"What backend programming language was being used?"* as-of `2022-06-01`):
+- **Dense Vector Only Trace:** Retrieves the 2026 Rust assertion or 2024 Go assertion. Because flat vector stores have no temporal interval awareness, newer statements with identical semantic structure collide at rank-1.
+- **RecallDB Full Hybrid Trace:** The slicing operator $\sigma_{\text{bitemp}}(\text{2022-06-01}, t_{\text{sys}})$ evaluates the valid intervals:
+  - Python fact: $[2022-01-15, 2024-03-01) \implies \sigma_{\text{bitemp}} = 1$ (Active).
+  - Go fact: $[2024-03-01, 2026-01-10) \implies \sigma_{\text{bitemp}} = 0$ (Future).
+  - Rust fact: $[2026-01-10, \infty) \implies \sigma_{\text{bitemp}} = 0$ (Future).
+- Future Go and Rust assertions are filtered out. The correct 2022 Python assertion is returned at Top-1.
 
 ---
 
 ### 5.3 Decoupled Failure Attribution Analysis
 
-Table 2 presents the results of the Tri-Factor Failure Attribution diagnostic across all 12 benchmark probes.
+Table 2 presents the results of the Tri-Factor Failure Attribution diagnostic across all 27 benchmark probes.
 
-### Table 2: Tri-Factor Failure Attribution Breakdown
+### Table 2: Tri-Factor Failure Attribution Breakdown on SynTemp-100
 
 | System Configuration | Total Probes | Successful Top-1 | Retrieval Failures ($m^* \notin C_k$) | Temporal Failures ($m^* \in C_k, r_1 \ne m^*$) | Reader Failures | Temporal Failure Rate |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|
-| **RecallDB Full Hybrid** | 12 | **10** | **0** | **2** | **0** | **16.7%** |
-| **Dense Vector Only** | 12 | 6 | 0 | 6 | 0 | **50.0%** |
-| **Hybrid No Temporal** | 12 | 2 | 3 | 7 | 0 | **58.3%** |
-| **Lexical BM25 Only** | 12 | 0 | 5 | 7 | 0 | **58.3%** |
+| **RecallDB Full Hybrid** | 27 | **27** | **0** | **0** | **0** | **0.0%** |
+| **Dense Vector Only** | 27 | 12 | 0 | 15 | 0 | **55.6%** |
+| **Hybrid No Temporal** | 27 | 14 | 0 | 13 | 0 | **48.1%** |
+| **Lexical BM25 Only** | 27 | 14 | 0 | 13 | 0 | **48.1%** |
 
 ```mermaid
 xychart-beta

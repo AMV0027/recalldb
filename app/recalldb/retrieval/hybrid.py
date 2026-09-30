@@ -1,7 +1,7 @@
 """
 Multi-factor hybrid ranking engine for RecallDB.
 Fuses semantic embeddings, FTS5 BM25, bitemporal state, importance,
-and generates explainability traces.
+and generates explainability traces with batched candidate hydration.
 """
 
 from typing import List, Optional, Dict, Set
@@ -15,6 +15,7 @@ from recalldb.core.memory import MemoryRecord, RetrievalResult, ExplanationTrace
 class HybridRetriever:
     """
     Unified candidate generation, bitemporal filtering, and multi-factor ranking.
+    Uses batched SQL retrieval to eliminate N+1 queries.
     """
 
     def __init__(
@@ -54,9 +55,10 @@ class HybridRetriever:
         1. Query dense semantic vectors
         2. Query lexical BM25
         3. Merge candidate pool
-        4. Apply bitemporal filtering
-        5. Score candidates with multi-factor formula
-        6. Generate explanation trace
+        4. Batch hydrate candidate records (single SQL IN query)
+        5. Apply bitemporal filtering
+        6. Score candidates with multi-factor formula
+        7. Generate explanation trace
         """
         # Step 1 & 2: Candidates
         semantic_matches = dict(self.semantic.search(query, top_k=top_k * 3))
@@ -64,15 +66,21 @@ class HybridRetriever:
 
         candidate_ids: Set[str] = set(semantic_matches.keys()).union(set(lexical_matches.keys()))
 
-        # If both empty, fallback to recent memories
+        # If both empty, fallback to bounded recent memories (never fetch all)
         if not candidate_ids:
-            all_recs = self.db.all_memories()
-            candidate_ids = {r.id for r in all_recs[-top_k*2:]}
+            recent_recs = self.db.get_recent(limit=top_k * 2)
+            candidate_ids = {r.id for r in recent_recs}
+
+        if not candidate_ids:
+            return []
+
+        # Step 4: Batch hydrate all candidate records in a single query
+        record_map = self.db.get_many(list(candidate_ids))
 
         scored_results: List[RetrievalResult] = []
 
         for mem_id in candidate_ids:
-            record = self.db.get(mem_id)
+            record = record_map.get(mem_id)
             if not record:
                 continue
 
@@ -84,7 +92,7 @@ class HybridRetriever:
             if filter_types and record.memory_type.value not in filter_types:
                 continue
 
-            # Temporal validity check
+            # Temporal validity check (raises ValueError if as_of is invalid format)
             is_valid = self.temporal.is_valid_as_of(record, as_of)
             if not include_invalid and not is_valid:
                 # Discard temporally invalid records (e.g. superseded past states)
@@ -109,13 +117,13 @@ class HybridRetriever:
             if explain:
                 rationale_parts = []
                 if vec_score > 0.4:
-                    rationale_parts.append(f"high semantic alignment ({vec_score:.2f})")
+                    rationale_parts.append(f"semantic alignment ({vec_score:.2f})")
                 if bm25_score > 0.3:
                     rationale_parts.append(f"exact lexical match ({bm25_score:.2f})")
                 if is_valid:
                     rationale_parts.append("active in temporal window")
                 else:
-                    rationale_parts.append("temporally invalidated/superseded")
+                    rationale_parts.append("temporally invalidated")
 
                 trace = ExplanationTrace(
                     memory_id=record.id,
@@ -130,7 +138,7 @@ class HybridRetriever:
                     as_of=as_of,
                     source=record.source,
                     confidence=record.confidence,
-                    decision_rationale=", ".join(rationale_parts) or "baseline candidate"
+                    decision_rationale=", ".join(rationale_parts) or "candidate match"
                 )
 
             scored_results.append(RetrievalResult(

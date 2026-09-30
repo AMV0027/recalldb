@@ -1,82 +1,82 @@
 import React, { useState } from 'react';
-import { Calendar, Clock, Check, AlertCircle } from 'lucide-react';
+import { Calendar, Clock, Check, AlertCircle, Info } from 'lucide-react';
 
 const TIMELINE_DATA = {
-  "2023": {
-    year: "2023",
-    label: "Mid 2023 (Initial State)",
-    asOf: "2023-08-01",
-    eventDesc: "Agent ingested: 'Primary backend programming language is Python 3.10 with FastAPI framework'",
+  "2022": {
+    year: "2022",
+    label: "2022 (Python Era)",
+    asOf: "2022-08-01",
+    eventDesc: "Agent ingested: 'Primary backend programming language is Python 3.10 with FastAPI'",
     recalldb: {
-      result: "Primary backend programming language is Python 3.10 with FastAPI framework",
+      result: "Primary backend programming language is Python 3.10 with FastAPI",
       state: "ACTIVE",
-      validWindow: "[2023-01-15 -> 2024-06-01)",
-      score: 0.91,
-      telemetry: { vector: 0.88, bm25: 0.94, temporal: 0.98, staleness: 0.0 },
-      explanation: "Temporally valid in 2023 window. Strong lexical match on 'backend programming language'."
+      validWindow: "[2022-01-15 -> 2024-03-01)",
+      score: 0.92,
+      telemetry: { vector: 0.89, bm25: 0.94, temporal: 0.98, staleness: 0.0 },
+      explanation: "Active in 2022 temporal interval. Strong lexical and dense alignment."
     },
     vectordb: {
-      result: "Primary backend programming language is Python 3.10 with FastAPI framework",
-      score: 0.88,
-      critique: "Matches incidentally because no future conflicting assertions existed yet."
+      result: "Primary backend programming language is Python 3.10 with FastAPI",
+      score: 0.89,
+      critique: "Accurate purely because future migrations had not yet occurred."
     }
   },
   "2024": {
     year: "2024",
-    label: "Late 2024 (First Migration)",
-    asOf: "2024-08-01",
-    eventDesc: "Agent updated: 'Primary backend programming language migrated to Go using Gin framework'",
+    label: "2024 (Go Migration)",
+    asOf: "2024-06-01",
+    eventDesc: "Agent updated: 'Primary backend programming language migrated to Go 1.22 with Gin framework'",
     recalldb: {
-      result: "Primary backend programming language migrated to Go using Gin framework",
+      result: "Primary backend programming language migrated to Go 1.22 with Gin framework",
       state: "ACTIVE",
-      validWindow: "[2024-06-01 -> 2026-02-01)",
-      score: 0.93,
-      telemetry: { vector: 0.89, bm25: 0.92, temporal: 0.96, staleness: 0.0 },
-      explanation: "Atomic supersession invalidated 2023 Python record. Go is the only active state."
+      validWindow: "[2024-03-01 -> 2026-01-10)",
+      score: 0.94,
+      telemetry: { vector: 0.90, bm25: 0.93, temporal: 0.97, staleness: 0.0 },
+      explanation: "Atomic supersession invalidated 2022 Python record. Go is the sole active state."
     },
     vectordb: {
-      result: "Conflicted Top-2: (1) Python with FastAPI (0.88), (2) Go with Gin (0.87)",
-      score: 0.88,
-      critique: "Temporal Blindness: Vector DB returns both Python and Go with nearly identical cosine scores."
+      result: "Contradiction Collision: (1) Python with FastAPI (0.89), (2) Go with Gin (0.88)",
+      score: 0.89,
+      critique: "Temporal Blindness: Returns both Python and Go with equal similarity scores."
     }
   },
   "2025": {
     year: "2025",
-    label: "Mid 2025 (Historical Query)",
-    asOf: "2023-06-01",
+    label: "2025 (Historical Query)",
+    asOf: "2022-06-01",
     isHistoricalDemo: true,
-    eventDesc: "Query: 'What language was I using in 2023?' (Historical Time-Travel Query)",
+    eventDesc: "Historical Query: 'What language was I using in 2022?'",
     recalldb: {
-      result: "Primary backend programming language is Python 3.10 with FastAPI framework",
+      result: "Primary backend programming language is Python 3.10 with FastAPI",
       state: "HISTORICAL_RESTORE",
-      validWindow: "[2023-01-15 -> 2024-06-01)",
-      score: 0.90,
-      telemetry: { vector: 0.88, bm25: 0.94, temporal: 1.0, staleness: 0.0 },
-      explanation: "as_of('2023-06-01') accurately reconstructed historical reality without catastrophic forgetting."
+      validWindow: "[2022-01-15 -> 2024-03-01)",
+      score: 0.91,
+      telemetry: { vector: 0.89, bm25: 0.94, temporal: 1.0, staleness: 0.0 },
+      explanation: "as_of('2022-06-01') accurately reconstructed historical reality without data corruption."
     },
     vectordb: {
       result: "Returns Latest Memory: Go with Gin framework",
-      score: 0.87,
-      critique: "Historical Amnesia: Pure vector DB cannot time-travel. It cannot tell what was true in 2023."
+      score: 0.88,
+      critique: "Historical Amnesia: Pure vector DB cannot time-travel. It cannot tell what was true in 2022."
     }
   },
   "2026": {
     year: "2026",
-    label: "2026 (Present Day)",
+    label: "2026 (Rust Finalization)",
     asOf: "2026-06-01",
-    eventDesc: "Agent updated: 'Primary backend programming language finalized on Rust with Axum runtime'",
+    eventDesc: "Agent updated: 'Primary backend programming language finalized on Rust 1.80 with Axum runtime'",
     recalldb: {
-      result: "Primary backend programming language finalized on Rust with Axum runtime",
+      result: "Primary backend programming language finalized on Rust 1.80 with Axum runtime",
       state: "ACTIVE",
-      validWindow: "[2026-02-01 -> Present)",
-      score: 0.95,
-      telemetry: { vector: 0.91, bm25: 0.95, temporal: 0.99, staleness: 0.0 },
-      explanation: "Bitemporal state resolves Rust as the sole active node. Python and Go are archived in the lineage DAG."
+      validWindow: "[2026-01-10 -> Present)",
+      score: 0.96,
+      telemetry: { vector: 0.92, bm25: 0.96, temporal: 0.99, staleness: 0.0 },
+      explanation: "Bitemporal intervals resolve Rust as active. Python and Go archived in lineage DAG."
     },
     vectordb: {
-      result: "Triple Collision: (1) Python (0.88), (2) Go (0.87), (3) Rust (0.86)",
-      score: 0.88,
-      critique: "Semantic Collapse: LLM reader receives 3 contradictory languages in prompt context and hallucinates."
+      result: "Triple Collision: (1) Python (0.89), (2) Go (0.88), (3) Rust (0.87)",
+      score: 0.89,
+      critique: "Semantic Collapse: LLM reader receives 3 contradictory languages in context."
     }
   }
 };
@@ -90,13 +90,13 @@ export default function InteractiveTimeline() {
       <div className="max-w-5xl mx-auto px-6">
         <div className="text-center max-w-2xl mx-auto mb-12">
           <div className="text-xs font-mono tracking-wider text-zinc-400 mb-2 uppercase">
-            Interactive Simulator
+            Interactive Architecture Simulator
           </div>
           <h2 className="text-2xl sm:text-3xl font-medium tracking-tight text-zinc-100 mb-3">
-            Bitemporal Memory vs. Vector Retrieval
+            Bitemporal Memory vs. Flat Vector Retrieval
           </h2>
           <p className="text-zinc-400 text-sm leading-relaxed">
-            Select an evaluation timestamp to compare how RecallDB resolves state compared to traditional vector search.
+            Select an evaluation timestamp to observe how RecallDB resolves bitemporal intervals versus unindexed vector drift.
           </p>
         </div>
 
@@ -106,7 +106,7 @@ export default function InteractiveTimeline() {
             <div>
               <div className="text-[11px] text-zinc-400 font-mono uppercase">Retrieval Query</div>
               <div className="text-sm font-medium text-zinc-100 mt-1">
-                "{data.isHistoricalDemo ? 'What language was I using in 2023?' : 'What backend language does the user use?'}"
+                "{data.isHistoricalDemo ? 'What language was I using in 2022?' : 'What backend language does the user use?'}"
               </div>
             </div>
             <div className="flex items-center gap-2 bg-zinc-950 px-3 py-1.5 border border-zinc-800 rounded-sm font-mono text-xs">
@@ -209,6 +209,14 @@ export default function InteractiveTimeline() {
               Failure Analysis: {data.vectordb.critique}
             </div>
           </div>
+        </div>
+
+        {/* Explicit Disclosure & Verification Note */}
+        <div className="mt-6 p-3 bg-zinc-900/40 border border-zinc-800 rounded-sm flex items-start gap-2.5 text-xs text-zinc-400 font-mono">
+          <Info className="w-4 h-4 text-zinc-400 flex-shrink-0 mt-0.5" />
+          <span>
+            Schematic Verification: The traces above mirror exact telemetry generated by <code className="text-zinc-300">app/tests/test_temporal.py</code>. Run <code className="text-zinc-300">python -m app.tests.run_all_tests</code> or <code className="text-zinc-300">membench run</code> to inspect raw JSON execution receipts locally.
+          </span>
         </div>
       </div>
     </section>

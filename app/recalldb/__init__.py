@@ -81,6 +81,15 @@ class RecallDB:
         Ingest a new memory into persistent storage with automated embedding
         and bitemporal indexing.
         """
+        if not content or not isinstance(content, str) or not content.strip():
+            raise ValueError("Memory content must be a non-empty string.")
+        if len(content) > 65536:
+            raise ValueError(f"Memory content exceeds maximum limit of 65536 characters (received {len(content)}).")
+        if not (0.0 <= confidence <= 1.0):
+            raise ValueError(f"Confidence must be between 0.0 and 1.0 (received {confidence}).")
+        if not (0.0 <= importance <= 1.0):
+            raise ValueError(f"Importance must be between 0.0 and 1.0 (received {importance}).")
+
         if isinstance(memory_type, str):
             memory_type = MemoryType(memory_type.lower())
 
@@ -151,6 +160,11 @@ class RecallDB:
         Update knowledge. If supersedes=True, preserves historical audit trail
         by creating a new record and retiring the previous record in-place.
         """
+        if not content or not isinstance(content, str) or not content.strip():
+            raise ValueError("Updated memory content must be a non-empty string.")
+        if len(content) > 65536:
+            raise ValueError(f"Updated memory content exceeds maximum limit of 65536 characters (received {len(content)}).")
+
         existing = self.db.get(memory_id)
         if not existing:
             raise ValueError(f"Memory with ID '{memory_id}' not found.")

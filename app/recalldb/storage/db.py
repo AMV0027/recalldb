@@ -1,15 +1,16 @@
 """
 SQLite database engine for RecallDB.
-Provides thread-safe connections, WAL mode tuning, schema migrations,
-and BLOB serialization for vector embeddings.
+Provides thread-safe connections, WAL mode tuning, retry logic for concurrency,
+schema migrations, batch retrieval, and BLOB serialization for vector embeddings.
 """
 
 from __future__ import annotations
 import sqlite3
 import json
 import struct
+import time
 from pathlib import Path
-from typing import List, Optional, Tuple, Dict, Any
+from typing import List, Optional, Tuple, Dict, Any, Callable
 from recalldb.core.memory import MemoryRecord, MemoryLifecycleState, utc_now_iso
 from recalldb.core.lifecycle import MemoryLifecycleManager
 
@@ -29,12 +30,29 @@ def blob_to_embedding(blob: Optional[bytes]) -> Optional[List[float]]:
     return list(struct.unpack(f"{count}f", blob))
 
 
+def retry_on_lock(max_retries: int = 5, initial_backoff: float = 0.05):
+    """Decorator to retry SQLite transactions on database lock contention."""
+    def decorator(func: Callable):
+        def wrapper(*args, **kwargs):
+            backoff = initial_backoff
+            for attempt in range(max_retries):
+                try:
+                    return func(*args, **kwargs)
+                except sqlite3.OperationalError as e:
+                    if "locked" in str(e).lower() and attempt < max_retries - 1:
+                        time.sleep(backoff)
+                        backoff *= 2
+                    else:
+                        raise
+        return wrapper
+    return decorator
+
+
 class Database:
     """Embedded SQLite database wrapper managing storage and FTS5 indices."""
 
     def __init__(self, db_path: str = "memory.db"):
         self.db_path = str(Path(db_path).resolve())
-        # Ensure parent directory exists
         Path(self.db_path).parent.mkdir(parents=True, exist_ok=True)
         self._init_db()
 
@@ -47,8 +65,8 @@ class Database:
         conn.execute("PRAGMA journal_mode = WAL;")
         conn.execute("PRAGMA synchronous = NORMAL;")
         conn.execute("PRAGMA foreign_keys = ON;")
-        conn.execute("PRAGMA busy_timeout = 5000;")
-        conn.execute("PRAGMA cache_size = -64000;")  # 64MB cache
+        conn.execute("PRAGMA busy_timeout = 10000;")  # 10s busy timeout
+        conn.execute("PRAGMA cache_size = -64000;")   # 64MB cache
         return conn
 
     def _init_db(self) -> None:
@@ -61,6 +79,7 @@ class Database:
             conn.executescript(ddl)
             conn.commit()
 
+    @retry_on_lock()
     def insert(self, record: MemoryRecord) -> MemoryRecord:
         """Insert a single MemoryRecord into the database."""
         blob = embedding_to_blob(record.embedding)
@@ -112,6 +131,46 @@ class Database:
                 record.embedding = blob_to_embedding(row["embedding"])
             return record
 
+    def get_many(self, memory_ids: List[str]) -> Dict[str, MemoryRecord]:
+        """
+        Batch retrieve multiple MemoryRecords in a single parameterized query.
+        Eliminates N+1 query loop bottlenecks.
+        """
+        if not memory_ids:
+            return {}
+
+        results = {}
+        # Batch in chunks of 500 to stay well under SQLite variable limit
+        chunk_size = 500
+        with self.get_connection() as conn:
+            for i in range(0, len(memory_ids), chunk_size):
+                chunk = memory_ids[i:i + chunk_size]
+                placeholders = ",".join("?" for _ in chunk)
+                sql = f"SELECT * FROM memories WHERE id IN ({placeholders})"
+                cur = conn.execute(sql, chunk)
+                for row in cur.fetchall():
+                    rec = MemoryRecord.from_row(dict(row))
+                    if row["embedding"]:
+                        rec.embedding = blob_to_embedding(row["embedding"])
+                    results[rec.id] = rec
+        return results
+
+    def get_recent(self, limit: int = 20) -> List[MemoryRecord]:
+        """Fetch most recently recorded memories up to limit."""
+        records = []
+        with self.get_connection() as conn:
+            cur = conn.execute(
+                "SELECT * FROM memories ORDER BY recorded_at DESC LIMIT ?",
+                (limit,)
+            )
+            for row in cur.fetchall():
+                r = MemoryRecord.from_row(dict(row))
+                if row["embedding"]:
+                    r.embedding = blob_to_embedding(row["embedding"])
+                records.append(r)
+        return records
+
+    @retry_on_lock()
     def update(self, record: MemoryRecord) -> None:
         """Update an existing MemoryRecord in-place."""
         blob = embedding_to_blob(record.embedding)
@@ -157,6 +216,7 @@ class Database:
             ))
             conn.commit()
 
+    @retry_on_lock()
     def supersede(
         self,
         existing_id: str,
@@ -224,6 +284,7 @@ class Database:
 
         return updated_existing, updated_new
 
+    @retry_on_lock()
     def delete(self, memory_id: str) -> bool:
         """Hard delete a memory record and its FTS entry."""
         with self.get_connection() as conn:

@@ -1,135 +1,270 @@
 {
   "adapter": "recalldb_dense_only_notemp",
-  "dataset": "syntemp-50",
-  "num_ingested": 12,
-  "num_queries": 12,
-  "ingest_time_total_ms": 140.92,
-  "latency_p50_ms": 18.72,
-  "latency_p95_ms": 28.14,
+  "dataset": "syntemp-100",
+  "num_ingested": 26,
+  "num_queries": 27,
+  "ingest_time_total_ms": 306.78,
+  "latency_p50_ms": 11.81,
+  "latency_p95_ms": 14.93,
   "metrics": {
-    "recall_at_1": 0.5,
-    "recall_at_3": 1.0,
+    "recall_at_1": 0.4444,
+    "recall_at_3": 0.963,
     "recall_at_5": 1.0,
-    "mrr": 0.7361,
-    "ndcg_at_5": 0.8046,
-    "top1_accuracy": 0.5,
-    "historical_accuracy": 0.4,
+    "mrr": 0.6759,
+    "ndcg_at_5": 0.7584,
+    "top1_accuracy": 0.4444,
+    "historical_accuracy": 0.3077,
     "current_update_accuracy": 0.5714
   },
   "failure_attribution": {
-    "success": 6,
+    "success": 12,
     "retrieval_failure": 0,
-    "temporal_failure": 6,
+    "temporal_failure": 15,
     "reader_failure": 0
   },
   "traces": [
     {
-      "id": "q1_hist_lang_2023",
+      "id": "q_hist_lang_2022",
       "query": "What backend programming language was being used?",
+      "as_of": "2022-06-01",
+      "latency_ms": 14.93,
+      "top1_match": false,
+      "failure_type": "temporal_failure",
+      "top_retrieved": "Primary backend programming language finalized on Rust 1.80 with Axum runtime"
+    },
+    {
+      "id": "q_hist_lang_2023",
+      "query": "What backend programming language did the system use?",
+      "as_of": "2023-05-01",
+      "latency_ms": 12.26,
+      "top1_match": false,
+      "failure_type": "temporal_failure",
+      "top_retrieved": "Primary backend programming language finalized on Rust 1.80 with Axum runtime"
+    },
+    {
+      "id": "q_hist_lang_2024",
+      "query": "What backend programming language was the team utilizing?",
+      "as_of": "2024-06-01",
+      "latency_ms": 11.96,
+      "top1_match": false,
+      "failure_type": "temporal_failure",
+      "top_retrieved": "Primary backend programming language finalized on Rust 1.80 with Axum runtime"
+    },
+    {
+      "id": "q_hist_db_2022",
+      "query": "What transactional database was the production cluster running?",
+      "as_of": "2022-01-01",
+      "latency_ms": 11.38,
+      "top1_match": true,
+      "failure_type": "success",
+      "top_retrieved": "Production transactional database runs on MySQL 8.0 cluster"
+    },
+    {
+      "id": "q_hist_db_2024",
+      "query": "What database engine was running for transactions?",
+      "as_of": "2024-01-01",
+      "latency_ms": 12.12,
+      "top1_match": false,
+      "failure_type": "temporal_failure",
+      "top_retrieved": "Production transactional database runs on MySQL 8.0 cluster"
+    },
+    {
+      "id": "q_hist_office_2021",
+      "query": "Where was the engineering headquarters located?",
+      "as_of": "2021-05-01",
+      "latency_ms": 19.33,
+      "top1_match": true,
+      "failure_type": "success",
+      "top_retrieved": "The engineering office is situated in Chennai, Tamil Nadu"
+    },
+    {
+      "id": "q_hist_office_2024",
+      "query": "Where was the engineering office situated?",
+      "as_of": "2024-01-01",
+      "latency_ms": 11.8,
+      "top1_match": false,
+      "failure_type": "temporal_failure",
+      "top_retrieved": "The engineering office is situated in Chennai, Tamil Nadu"
+    },
+    {
+      "id": "q_hist_orchestrator_2023",
+      "query": "What deployment orchestrator was in use?",
+      "as_of": "2023-01-01",
+      "latency_ms": 11.3,
+      "top1_match": false,
+      "failure_type": "temporal_failure",
+      "top_retrieved": "Deployment orchestrator modernized with Cilium eBPF on Kubernetes EKS v1.32"
+    },
+    {
+      "id": "q_hist_queue_2023",
+      "query": "What message queue was being used for async jobs?",
+      "as_of": "2023-01-01",
+      "latency_ms": 13.62,
+      "top1_match": false,
+      "failure_type": "temporal_failure",
+      "top_retrieved": "Asynchronous message broker replaced by Apache Kafka streaming cluster"
+    },
+    {
+      "id": "q_hist_frontend_2022",
+      "query": "What framework was used to build the web frontend?",
+      "as_of": "2022-01-01",
+      "latency_ms": 12.22,
+      "top1_match": true,
+      "failure_type": "success",
+      "top_retrieved": "Web application frontend is built with Vue 3 and Vuex store"
+    },
+    {
+      "id": "q_hist_llm_2023",
+      "query": "What was the default LLM used for agent reasoning?",
       "as_of": "2023-08-01",
-      "latency_ms": 18.06,
-      "top1_match": false,
-      "failure_type": "temporal_failure",
-      "top_retrieved": "Primary backend programming language finalized on Rust with Axum runtime"
+      "latency_ms": 10.5,
+      "top1_match": true,
+      "failure_type": "success",
+      "top_retrieved": "Default foundational LLM for agent reasoning is GPT-4-0613"
     },
     {
-      "id": "q2_hist_lang_2024",
-      "query": "What backend programming language was the system using?",
-      "as_of": "2024-08-01",
-      "latency_ms": 21.18,
+      "id": "q_hist_llm_2024",
+      "query": "Which LLM model was the primary engine for agents?",
+      "as_of": "2024-11-01",
+      "latency_ms": 11.57,
       "top1_match": false,
       "failure_type": "temporal_failure",
-      "top_retrieved": "Primary backend programming language finalized on Rust with Axum runtime"
+      "top_retrieved": "Default foundational LLM for agent reasoning is GPT-4-0613"
     },
     {
-      "id": "q3_curr_lang_2026",
+      "id": "q_hist_theme_2024",
+      "query": "What color theme did the user prefer?",
+      "as_of": "2024-01-01",
+      "latency_ms": 12.04,
+      "top1_match": false,
+      "failure_type": "temporal_failure",
+      "top_retrieved": "User preferred developer theme changed to GitHub Dark High Contrast"
+    },
+    {
+      "id": "q_curr_lang_2026",
       "query": "What backend programming language is currently used?",
       "as_of": "2026-06-01",
-      "latency_ms": 19.62,
+      "latency_ms": 11.83,
       "top1_match": false,
       "failure_type": "temporal_failure",
-      "top_retrieved": "Primary backend programming language is Python with FastAPI framework"
+      "top_retrieved": "Primary backend programming language is Python 3.10 with FastAPI"
     },
     {
-      "id": "q4_hist_db_2023",
-      "query": "What database was being used for production transactions?",
-      "as_of": "2023-06-01",
-      "latency_ms": 26.36,
-      "top1_match": true,
-      "failure_type": "success",
-      "top_retrieved": "Production transactional database runs on MySQL 8.0 cluster"
-    },
-    {
-      "id": "q5_curr_db_2025",
+      "id": "q_curr_db_2026",
       "query": "What database is used for production transactions?",
-      "as_of": "2025-06-01",
-      "latency_ms": 18.24,
+      "as_of": "2026-01-01",
+      "latency_ms": 12.21,
       "top1_match": false,
       "failure_type": "temporal_failure",
       "top_retrieved": "Production transactional database runs on MySQL 8.0 cluster"
     },
     {
-      "id": "q6_hist_office_2023",
-      "query": "Where is the engineering office located?",
-      "as_of": "2023-01-01",
-      "latency_ms": 18.24,
-      "top1_match": true,
-      "failure_type": "success",
-      "top_retrieved": "The engineering office is situated in Chennai, Tamil Nadu"
-    },
-    {
-      "id": "q7_curr_office_2025",
-      "query": "Where is the engineering office currently located?",
-      "as_of": "2025-01-01",
-      "latency_ms": 17.77,
+      "id": "q_curr_office_2026",
+      "query": "Where is the engineering office currently situated?",
+      "as_of": "2026-01-01",
+      "latency_ms": 11.64,
       "top1_match": false,
       "failure_type": "temporal_failure",
       "top_retrieved": "The engineering office is situated in Chennai, Tamil Nadu"
     },
     {
-      "id": "q8_exact_port_redis",
-      "query": "What port does Redis sentinel cluster use?",
+      "id": "q_curr_orchestrator_2026",
+      "query": "What orchestrator manages cloud deployments?",
+      "as_of": "2026-06-01",
+      "latency_ms": 11.76,
+      "top1_match": true,
+      "failure_type": "success",
+      "top_retrieved": "Deployment orchestrator modernized with Cilium eBPF on Kubernetes EKS v1.32"
+    },
+    {
+      "id": "q_curr_queue_2026",
+      "query": "What message broker handles event streaming?",
       "as_of": "2026-01-01",
-      "latency_ms": 17.68,
+      "latency_ms": 11.96,
+      "top1_match": true,
+      "failure_type": "success",
+      "top_retrieved": "Asynchronous message broker replaced by Apache Kafka streaming cluster"
+    },
+    {
+      "id": "q_curr_frontend_2026",
+      "query": "What frontend framework does the web application use?",
+      "as_of": "2026-01-01",
+      "latency_ms": 12.12,
+      "top1_match": false,
+      "failure_type": "temporal_failure",
+      "top_retrieved": "Web application frontend is built with Vue 3 and Vuex store"
+    },
+    {
+      "id": "q_curr_llm_2026",
+      "query": "What is the default foundational LLM for agent reasoning?",
+      "as_of": "2026-06-01",
+      "latency_ms": 11.69,
+      "top1_match": false,
+      "failure_type": "temporal_failure",
+      "top_retrieved": "Default foundational LLM for agent reasoning is GPT-4-0613"
+    },
+    {
+      "id": "q_curr_theme_2026",
+      "query": "What theme does the user currently prefer in the editor?",
+      "as_of": "2026-01-01",
+      "latency_ms": 11.81,
+      "top1_match": false,
+      "failure_type": "temporal_failure",
+      "top_retrieved": "User preferred developer theme is Tokyo Night Storm"
+    },
+    {
+      "id": "q_token_redis_port",
+      "query": "What port does Redis sentinel listen on?",
+      "as_of": "2026-01-01",
+      "latency_ms": 11.12,
       "top1_match": true,
       "failure_type": "success",
       "top_retrieved": "Production Redis sentinel cluster listens on port 6379 with auth key SEC_9921_XQ"
     },
     {
-      "id": "q9_exact_auth_key",
+      "id": "q_token_redis_auth",
       "query": "What is the Redis auth key SEC_9921_XQ?",
       "as_of": "2026-01-01",
-      "latency_ms": 19.21,
+      "latency_ms": 11.79,
       "top1_match": true,
       "failure_type": "success",
       "top_retrieved": "Production Redis sentinel cluster listens on port 6379 with auth key SEC_9921_XQ"
     },
     {
-      "id": "q10_exact_prometheus",
-      "query": "What is the Prometheus metrics port?",
+      "id": "q_token_prom_port",
+      "query": "What port does the Prometheus metrics exporter use?",
       "as_of": "2026-01-01",
-      "latency_ms": 20.62,
+      "latency_ms": 10.69,
       "top1_match": true,
       "failure_type": "success",
-      "top_retrieved": "Internal metrics telemetry agent Prometheus scrape target is port 9090"
+      "top_retrieved": "Prometheus metrics scrape exporter listens on internal port 9090"
     },
     {
-      "id": "q11_hist_orchestrator",
-      "query": "What cloud deployment orchestrator was in use?",
-      "as_of": "2024-01-01",
-      "latency_ms": 28.14,
-      "top1_match": false,
-      "failure_type": "temporal_failure",
-      "top_retrieved": "Primary cloud deployment orchestrator transitioned to Kubernetes EKS cluster"
-    },
-    {
-      "id": "q12_curr_orchestrator",
-      "query": "What cloud orchestrator is used for deployments?",
+      "id": "q_token_gateway_ip",
+      "query": "What is the internal gateway IPv4 address 10.240.18.52?",
       "as_of": "2026-01-01",
-      "latency_ms": 17.46,
+      "latency_ms": 11.22,
       "top1_match": true,
       "failure_type": "success",
-      "top_retrieved": "Primary cloud deployment orchestrator transitioned to Kubernetes EKS cluster"
+      "top_retrieved": "Primary internal gateway IPv4 address is 10.240.18.52 on VLAN 402"
+    },
+    {
+      "id": "q_token_k8s_endpoint",
+      "query": "What is the staging Kubernetes API endpoint api-stg-k8s.internal.lan:6443?",
+      "as_of": "2026-01-01",
+      "latency_ms": 11.87,
+      "top1_match": true,
+      "failure_type": "success",
+      "top_retrieved": "Staging environment Kubernetes cluster API endpoint is api-stg-k8s.internal.lan:6443"
+    },
+    {
+      "id": "q_token_jwt_secret",
+      "query": "What is the rotated production JWT secret KEY_ROT_99812_SEC?",
+      "as_of": "2026-01-01",
+      "latency_ms": 11.07,
+      "top1_match": true,
+      "failure_type": "success",
+      "top_retrieved": "Production JWT signing key secret rotated to KEY_ROT_99812_SEC"
     }
   ]
 }

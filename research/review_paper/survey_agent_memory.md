@@ -341,19 +341,22 @@ The systems are benchmarked across eight critical dimensions:
 8. **Retrieval Failure Attribution:** Explicitly disentangles and measures retrieval precision independently from generator LLM reasoning hallucinations.
 
 | # | System / Framework | Primary Reference | Local / Zero-Server | Lexical BM25 | Dense Vector | Bitemporal Intervals | Point-in-Time Query | Contradiction Supersession | Provenance Tracing | Failure Attribution |
-| :-: | :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| :-: | :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | 1 | **MemGPT / Letta** | Packer et al. (2023) | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ (LLM Overwrite) | ⚠️ (Coarse Log ID) | ❌ (Conflated) |
 | 2 | **LongMemEval** | Wu et al. (2024) | ⚠️ (Eval Suite) | ❌ | ⚠️ (Baseline Dep.) | ❌ | ⚠️ (Synthetic Only) | ❌ (Target of Eval) | ❌ | ⚠️ (Partial Judge) |
 | 3 | **LoCoMo** | Maharana et al. (2024) | ⚠️ (Eval Suite) | ❌ | ⚠️ (Baseline Dep.) | ❌ | ❌ | ❌ (Static Eval) | ❌ | ❌ (Conflated) |
 | 4 | **Mem0** | Deshpande et al. (2024) | ❌ | ❌ | ✅ | ❌ | ❌ (Destructive) | ❌ (Prompt Rewrite) | ⚠️ (Memory ID) | ❌ (Conflated) |
 | 5 | **HippoRAG** | Berns et al. (2024) | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ (Graph Competition)| ⚠️ (Extracted Triples)| ❌ (Conflated) |
-| 6 | **Zep (TKG Engine)** | Zep Project (2024) | ❌ | ⚠️ (Postgres FTS) | ✅ | ❌ (Single Time) | ⚠️ (Edge Validity) | ⚠️ (Graph Pruning) | ✅ (Turn ID) | ❌ (Conflated) |
+| 6 | **Zep (Graphiti)** | Rasmussen et al. (2025) | ❌ | ⚠️ (Postgres FTS) | ✅ | ✅ ($T, T'$) | ⚠️ (Edge Validity) | ⚠️ (Graph Pruning) | ✅ (Turn ID) | ❌ (Conflated) |
 | 7 | **A-MEM** | Xu et al. (2025) | ❌ | ❌ | ✅ | ❌ | ❌ (Decayed/Purged) | ❌ (Agent Restructure)| ⚠️ (Cluster Path) | ❌ (Conflated) |
 | 8 | **Bitemporal DBs** | Snodgrass (1999) | ✅ | ⚠️ (SQL LIKE/FTS) | ❌ | ✅ ($T_v \times T_t$) | ✅ (Deterministic SQL) | ✅ (Interval Splitting)| ✅ (Audit Ledger) | ❌ (No Agent IR) |
 | 9 | **Dense/Lexical Hybrid** | Karpukhin (2020); Robertson (2009)| ✅ | ✅ | ✅ | ❌ | ❌ | ❌ (Score Collision) | ⚠️ (Chunk ID) | ❌ (Conflated) |
 | 10 | **TiGraph / TKG** | Leblay & Chekol (2018) | ❌ | ❌ | ⚠️ (T-GCN) | ⚠️ (Valid Time Only)| ✅ (Graph Snapshot) | ⚠️ (Edge Invalidation)| ⚠️ (Graph Quad) | ❌ (Conflated) |
 | 11 | **Self-RAG / CRAG** | Asai (2023); Yan (2024) | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ (Critique Filter) | ⚠️ (Doc Ref) | ⚠️ (Reflection Token)|
-| 12 | **AgentBench / LME-V2** | Liu (2024); Zhou (2025) | ⚠️ (Eval Suite) | ❌ | ⚠️ (Trajectory Sim)| ❌ (Step Index) | ❌ | ❌ (Policy Penalty) | ✅ (Action Trace) | ⚠️ (Step Accuracy) |
+| 12 | **Agent Brain** | Sritharan (2026) | ❌ | ⚠️ (Hybrid RRF) | ✅ | ❌ (FSRS Decay) | ❌ | ⚠️ (Nightly Dream Cycle)| ✅ (Trace ID) | ⚠️ (Quiz QA) |
+| 13 | **Oracle Agent Memory** | Alake et al. (2026) | ❌ (Enterprise DB) | ⚠️ (Oracle Text) | ✅ (Oracle 23ai) | ⚠️ (Timestamped Context)| ⚠️ (Active Layer) | ⚠️ (Active Context Card)| ✅ (Thread/Msg ID) | ⚠️ (Token & Latency) |
+| 14 | **Agent-Native Memory** | Zhou et al. (2026) | ⚠️ (MemoryData Testbed) | ✅ | ✅ | ⚠️ (Taxonomy Gap) | ⚠️ (Identified Need) | ⚠️ (Taxonomy Gap) | ✅ (Action Trace) | ✅ (System-Level Taxonomy) |
+| 15 | **RecallDB (Ours)** | This Work (2026) | ✅ | ✅ (FTS5 Porter) | ✅ (In-Memory NumPy)| ✅ ($t_e, [t_s, t_e), t_r$)| ✅ (`as_of(t)`) | ✅ (FSM ACTIVE->SUPERSEDED)| ✅ (Lineage DAG) | ✅ (Tri-Factor Attribution) |
 
 *Legend: ✅ Fully supported; ⚠️ Partially supported / limited / dependent on external component; ❌ Unsupported.*
 
@@ -433,6 +436,29 @@ The systems are benchmarked across eight critical dimensions:
 * **Ingestion & Retrieval Pipeline:** Records full action-observation trajectory traces: $\tau = (s_0, a_0, o_0, r_0, \dots, s_T)$. Evaluates whether agents can retrieve and leverage past tool execution traces to avoid repeating failed actions.
 * **Temporal & Contradiction Handling:** Uses discrete step counters ($t \in \mathbb{N}$) within isolated sessions. Lacks calendar-time interval reasoning across disjoint real-world sessions. Contradictions in tool trajectories are handled via policy updates or negative reward tagging.
 * **Failure Modes:** Lacks semantic fact memory profiling; high evaluation variance caused by non-deterministic external software environments.
+
+---
+
+#### 13. Oracle Agent Memory (Alake et al., July 2026)
+* **Underlying Architecture:** An enterprise database-native memory substrate built directly on Oracle Database (Oracle 23ai). It separates an *Active Memory Core* (handling thread synchronization, automatic context cards, summarization, and extraction) from a *Passive Memory Store* (exposing insert, search, and scope control across users, agents, and conversation threads).
+* **Ingestion & Retrieval Pipeline:** Incoming messages are ingested into relational tables and vectorized into Oracle AI Vector Search indexes. Context cards and thread summaries are refreshed incrementally to bound prompt size.
+* **Temporal & Contradiction Handling:** Uses thread-level timestamps and context card eviction. While it provides strong user and agent multi-tenancy scoping, it relies on application-level summarization rather than native relational interval calculus to invalidate obsolete records.
+* **Benchmark Insights:** Evaluated on LongMemEval, reaching 93.8% accuracy while utilizing 10.7x fewer prompt tokens than flat transcript baselines.
+
+#### 14. Agent-Native Memory Systems & MemoryData (Zhou et al., Tsinghua / OpenDataBox, June 2026)
+* **Underlying Architecture:** A systematic experimental study and benchmark testbed (`MemoryData`) evaluating 12 agent memory systems across 11 datasets from a data management perspective. Decomposes memory systems into four core functional modules: (i) Representation & Storage, (ii) Extraction, (iii) Retrieval & Routing, and (iv) Maintenance.
+* **Key Empirical Discoveries:**
+  1. *Catastrophic Temporal Degradation:* In append-only and similarity-based stores, retrieval accuracy collapses as the temporal distance between evidence and query increases, resulting in rampant "hallucinations of the past."
+  2. *Destruction of Chronology:* Standard semantic consolidation often destroys crucial chronological cues, causing raw long-context LLMs to unexpectedly outperform memory-backed systems on time-dependent queries.
+  3. *Cost-Performance Asymmetry:* Complex multi-tier graph systems incur orders-of-magnitude higher index construction and query latencies without delivering proportional accuracy improvements. Localized maintenance is proven far more cost-efficient than global graph reorganization.
+
+#### 15. Agent Brain & LongMemEval-M (Sritharan, April 2026)
+* **Underlying Architecture:** An 11-stage biologically inspired memory system designed for autonomous agents in enterprise property management. Integrates perception gates, deduplication guards, NER, a knowledge graph, reciprocal rank fusion, cross-encoder re-ranking, Free Spaced Repetition Scheduler (FSRS) decay, and a nightly five-phase "Dream Cycle."
+* **Evaluation on LongMemEval-M:** Tested on `longmemeval-m-cleaned` (500 QA pairs across 510 multi-turn workspaces). Achieved 71.7% accuracy without consolidation, but dropped to 69.8% with the Dream Cycle enabled, revealing that aggressive background consolidation can inadvertently degrade factual retrieval fidelity. A clean pgvector control reached 72.2–73.9%, demonstrating that complex multi-stage pipelines often introduce noise unless backed by deterministic lifecycle state machines.
+
+#### 16. RecallDB: Local-First Bitemporal Engine (This Work, 2026)
+* **Underlying Architecture:** A zero-server, embedded Python library built on SQLite WAL mode, Porter FTS5 lexical indexing, contiguous in-memory float32 NumPy vector caching, and an atomic Supersession FSM.
+* **Core Synthesis:** Resolves the data management failure modes identified by Zhou et al. (2026) and Alake et al. (2026) by pairing point-in-time interval slicing (`as_of(t)`) with deterministic $ACTIVE \to SUPERSEDED$ state transitions and tri-factor diagnostic failure attribution ($E_{retrieval} \oplus E_{temporal} \oplus E_{reader}$).
 
 ---
 

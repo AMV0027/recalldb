@@ -423,6 +423,14 @@ Hybrid retrieval combining dense neural embeddings with BM25 inverted indices is
 
 ---
 
+### 7.4 Recent Empirical Discoveries in Agent Memory (2025–2026)
+Our findings directly connect with recent breakthroughs in agent data management:
+- **Zhou et al. (2026)** conducted a systematic 12-system benchmark across 11 datasets, identifying that similarity-based stores suffer severe degradation as temporal distance expands, creating "hallucinations of the past." They demonstrated that standard semantic consolidation destroys chronological cues, and that localized maintenance is vastly superior to global graph reorganization. RecallDB directly operationalizes this through zero-daemon SQLite triggers and deterministic supersession.
+- **Alake et al. (2026)** proposed Oracle Agent Memory, demonstrating that long-horizon agent memory is fundamentally a database systems challenge requiring explicit lifecycle management and scoped retrieval, reducing token overhead by 10.7x on LongMemEval. RecallDB demonstrates that these guarantees can be realized in a zero-server, embedded footprint.
+- **Sritharan (2026)** evaluated Agent Brain on LongMemEval-M, demonstrating that unconstrained dream-cycle consolidation can actually reduce accuracy (from 71.7% to 69.8%), emphasizing the need for RecallDB's mathematically deterministic point-in-time intervals over heuristic cognitive consolidation.
+
+---
+
 ## 8. Conclusion & Reproducibility Statement
 
 In this paper, we presented **RecallDB**, a local-first, bitemporal hybrid memory engine designed to resolve the pervasive challenges of temporal blindness, contradiction collapse, and conflated evaluation in long-horizon AI agents. By anchoring agent state persistence in an embedded SQLite WAL substrate with FTS5 BM25 indexing, IEEE 754 vector BLOBs, an atomic supersession state machine, and multi-factor ranking with point-in-time slicing, RecallDB establishes an academically rigorous foundation for persistent agent intelligence.
@@ -460,3 +468,7 @@ All raw JSON execution receipts (`receipt_recalldb_hybrid_temporal.json`, `recei
 15. Xu, W., et al. (2025). *A-MEM: Dynamic Agentic Memory with Dynamic Organization and Self-Evolution.* arXiv preprint arXiv:2502.12110.
 16. Yan, S. Q., et al. (2024). *Corrective Retrieval Augmented Generation (CRAG).* arXiv preprint arXiv:2401.15884.
 17. Zep Project. (2024). *Zep: Long-Term Memory Engine for LLM Applications.* Technical Architecture and System Documentation.
+18. Alake, R., Bernardis, C., Cayet, P., et al. (2026). *Oracle Agent Memory as an Enterprise Memory Substrate for Long-Horizon AI Agents.* arXiv preprint arXiv:2607.13157.
+19. Zhou, W., Zhou, X., Han, S., et al. (2026). *Are We Ready For An Agent-Native Memory System?* arXiv preprint arXiv:2606.24775.
+20. Huang, W.-C., Zhang, W., Liang, Y., et al. (2026). *A Survey of Agent Memory in the Second Half: Towards Self-Evolving and Long-Horizon Agents.* arXiv preprint arXiv:2602.06052.
+21. Sritharan, T. (2026). *Agent Brain: A Biologically Inspired Memory System for Autonomous AI Agents — LongMemEval-M Evaluation.* Technical Report, Zenodo, doi:10.5281/zenodo.19673132.

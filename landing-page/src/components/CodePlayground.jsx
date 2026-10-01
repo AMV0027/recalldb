@@ -113,7 +113,8 @@ export default function CodePlayground() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.55 }}
-              className="text-[38px] sm:text-[48px] font-normal leading-tight tracking-tight text-[#111]"
+              className="text-[38px] sm:text-[48px] leading-tight tracking-tight text-[#111]"
+              style={{ fontFamily: 'var(--font-display)', fontWeight: 400 }}
             >
               Python SDK.
             </motion.h2>
@@ -125,6 +126,7 @@ export default function CodePlayground() {
               viewport={{ once: true }}
               transition={{ duration: 0.55, delay: 0.1 }}
               className="text-[15px] text-[#555] leading-relaxed"
+              style={{ fontFamily: 'var(--font-sans)' }}
             >
               Connect RecallDB to Ollama, OpenAI, Anthropic, or LangChain with zero daemon setup. One line of code to enable persistent, bitemporal agent memory.
             </motion.p>
@@ -151,6 +153,7 @@ export default function CodePlayground() {
                       ? 'bg-[#111] text-white'
                       : 'text-[#666] hover:text-[#111]'
                   }`}
+                  style={{ fontFamily: 'var(--font-sans)' }}
                 >
                   {tab.label}
                 </button>
@@ -159,6 +162,7 @@ export default function CodePlayground() {
             <button
               onClick={copyCode}
               className="text-[#888] hover:text-[#111] text-[12px] flex items-center gap-1.5 transition-colors py-1 px-2"
+              style={{ fontFamily: 'var(--font-sans)' }}
             >
               {copied ? <Check className="w-3.5 h-3.5 text-[#111]" /> : <Copy className="w-3.5 h-3.5" />}
               <span>{copied ? 'Copied' : 'Copy'}</span>
@@ -171,7 +175,7 @@ export default function CodePlayground() {
           </div>
 
           {/* Footer */}
-          <div className="px-4 py-2.5 border-t border-[#e4e4e4] bg-[#fafafa] flex flex-wrap items-center justify-between text-[11px] text-[#888]">
+          <div className="px-4 py-2.5 border-t border-[#e4e4e4] bg-[#fafafa] flex flex-wrap items-center justify-between text-[11px] text-[#888]" style={{ fontFamily: 'var(--font-sans)' }}>
             <span className="font-mono">recalldb v0.1.0 — embedded, zero-daemon</span>
             <span>Supports: Ollama · OpenAI · Claude · LangChain</span>
           </div>

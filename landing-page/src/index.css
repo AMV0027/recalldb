@@ -1,7 +1,8 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Google Sans", system-ui, -apple-system, sans-serif;
+  --font-sans: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
@@ -18,7 +19,32 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Google Sans for all display headings */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
 /* Thin divider utility */
 .hairline {
   border-color: #e4e4e4;
+}
+
+/* YouTube embed — hide native player chrome via pointer events trick */
+.yt-wrapper {
+  position: relative;
+  overflow: hidden;
+}
+.yt-wrapper iframe {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  border: none;
+  pointer-events: none;
 }

@@ -7,7 +7,6 @@ const TIMELINE_DATA = {
     label: "2022: Python Era",
     asOf: "2022-08-01",
     eventDesc: "Ingested Fact: 'Primary backend programming language is Python 3.10 with FastAPI runtime'",
-    cursorX: 12.5,
     recalldb: {
       result: "Primary backend programming language is Python 3.10 with FastAPI runtime",
       state: "ACTIVE",
@@ -27,7 +26,6 @@ const TIMELINE_DATA = {
     label: "2024: Go Migration",
     asOf: "2024-06-01",
     eventDesc: "Atomic Supersession: 'Primary backend programming language migrated to Go 1.22 with Gin framework'",
-    cursorX: 37.5,
     recalldb: {
       result: "Primary backend programming language migrated to Go 1.22 with Gin framework",
       state: "ACTIVE",
@@ -48,7 +46,6 @@ const TIMELINE_DATA = {
     asOf: "2022-06-01",
     isHistoricalDemo: true,
     eventDesc: "Historical Time-Travel Query: 'What language was I using in mid-2022?' with as_of='2022-06-01'",
-    cursorX: 62.5,
     recalldb: {
       result: "Primary backend programming language is Python 3.10 with FastAPI runtime",
       state: "HISTORICAL RESTORE",
@@ -68,7 +65,6 @@ const TIMELINE_DATA = {
     label: "2026: Rust Finalization",
     asOf: "2026-06-01",
     eventDesc: "Atomic Supersession: 'Primary backend programming language finalized on Rust 1.80 with Axum runtime'",
-    cursorX: 87.5,
     recalldb: {
       result: "Primary backend programming language finalized on Rust 1.80 with Axum runtime",
       state: "ACTIVE",
@@ -93,7 +89,7 @@ export default function InteractiveTimeline() {
     <section id="simulator" className="bg-white border-t border-[#e4e4e4]">
       <div className="max-w-6xl mx-auto px-6 py-20">
 
-        {/* Section Header */}
+        {/* Header */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-10 mb-14">
           <div className="md:col-span-5">
             <motion.h2
@@ -101,7 +97,8 @@ export default function InteractiveTimeline() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.55 }}
-              className="text-[38px] sm:text-[48px] font-normal leading-tight tracking-tight text-[#111]"
+              className="text-[38px] sm:text-[48px] leading-tight tracking-tight text-[#111]"
+              style={{ fontFamily: 'var(--font-display)', fontWeight: 400 }}
             >
               Memory Simulator.
             </motion.h2>
@@ -113,6 +110,7 @@ export default function InteractiveTimeline() {
               viewport={{ once: true }}
               transition={{ duration: 0.55, delay: 0.1 }}
               className="text-[15px] text-[#555] leading-relaxed"
+              style={{ fontFamily: 'var(--font-sans)' }}
             >
               Select an evaluation timestamp to witness how bitemporal point-in-time intervals resolve state transitions versus unindexed vector drift.
             </motion.p>
@@ -121,7 +119,7 @@ export default function InteractiveTimeline() {
 
         {/* Timeline Selector */}
         <div className="mb-8">
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#e4e4e4] pb-2 text-[12px] text-[#888]">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#e4e4e4] pb-2 text-[12px] text-[#888]" style={{ fontFamily: 'var(--font-sans)' }}>
             <span>Timeline Milestone:</span>
             <span>as_of: <strong className="text-[#111] font-mono">{data.asOf}</strong></span>
           </div>
@@ -133,24 +131,25 @@ export default function InteractiveTimeline() {
                 onClick={() => setSelectedYear(yr)}
                 className={`py-2.5 px-3 text-left text-[13px] transition-colors border-b-2 ${
                   selectedYear === yr
-                    ? 'border-[#111] text-[#111] font-medium'
+                    ? 'border-[#111] text-[#111]'
                     : 'border-transparent text-[#888] hover:text-[#111] hover:border-[#ccc]'
                 }`}
+                style={{ fontFamily: selectedYear === yr ? 'var(--font-display)' : 'var(--font-sans)', fontWeight: selectedYear === yr ? 500 : 400 }}
               >
                 {TIMELINE_DATA[yr].label}
               </button>
             ))}
           </div>
 
-          <div className="mt-3 p-4 bg-[#fafafa] border border-[#e4e4e4] text-[12px] text-[#666] italic">
+          <div className="mt-3 p-4 bg-[#fafafa] border border-[#e4e4e4] text-[12px] text-[#666] italic" style={{ fontFamily: 'var(--font-sans)' }}>
             {data.eventDesc}
           </div>
         </div>
 
         {/* Query */}
         <div className="mb-6 pb-3 border-b border-[#e4e4e4]">
-          <span className="text-[11px] uppercase tracking-wider text-[#aaa]">Retrieval Prompt: </span>
-          <span className="text-[14px] text-[#111] italic">
+          <span className="text-[11px] uppercase tracking-wider text-[#aaa]" style={{ fontFamily: 'var(--font-sans)' }}>Retrieval Prompt: </span>
+          <span className="text-[14px] text-[#111] italic" style={{ fontFamily: 'var(--font-sans)' }}>
             "{data.isHistoricalDemo ? 'What backend language was I using in mid-2022?' : 'What backend language does the user use?'}"
           </span>
         </div>
@@ -168,22 +167,20 @@ export default function InteractiveTimeline() {
             {/* Left: RecallDB */}
             <div className="space-y-3 pb-4">
               <div className="flex items-center justify-between border-b border-[#111] pb-1.5">
-                <span className="text-[12px] uppercase tracking-wider font-medium text-[#111]">
+                <span className="text-[12px] uppercase tracking-wider text-[#111]" style={{ fontFamily: 'var(--font-display)', fontWeight: 500 }}>
                   RecallDB Bitemporal Engine
                 </span>
-                <span className="text-[12px] font-mono text-[#888]">
-                  Score: {data.recalldb.score}
-                </span>
+                <span className="text-[12px] font-mono text-[#888]">Score: {data.recalldb.score}</span>
               </div>
-              <div className="text-[14px] text-[#111] leading-relaxed">
+              <div className="text-[14px] text-[#111] leading-relaxed" style={{ fontFamily: 'var(--font-sans)' }}>
                 "{data.recalldb.result}"
               </div>
               <div className="text-[12px] text-[#888] flex items-center gap-2 font-mono">
-                <span className="text-[#111] font-medium">[{data.recalldb.state}]</span>
+                <span className="text-[#111]" style={{ fontFamily: 'var(--font-display)', fontWeight: 500 }}>[{data.recalldb.state}]</span>
                 <span>·</span>
                 <span>Valid: {data.recalldb.validWindow}</span>
               </div>
-              <p className="text-[13px] text-[#555] leading-relaxed italic border-t border-[#e4e4e4] pt-2">
+              <p className="text-[13px] text-[#555] leading-relaxed italic border-t border-[#e4e4e4] pt-2" style={{ fontFamily: 'var(--font-sans)' }}>
                 {data.recalldb.explanation}
               </p>
             </div>
@@ -191,20 +188,18 @@ export default function InteractiveTimeline() {
             {/* Right: Vector Store */}
             <div className="space-y-3 pb-4 md:border-l md:border-[#e4e4e4] md:pl-10">
               <div className="flex items-center justify-between border-b border-[#e4e4e4] pb-1.5">
-                <span className="text-[12px] uppercase tracking-wider text-[#aaa]">
+                <span className="text-[12px] uppercase tracking-wider text-[#aaa]" style={{ fontFamily: 'var(--font-sans)' }}>
                   Conventional Vector Store
                 </span>
-                <span className="text-[12px] font-mono text-[#aaa]">
-                  Score: {data.vectordb.score}
-                </span>
+                <span className="text-[12px] font-mono text-[#aaa]">Score: {data.vectordb.score}</span>
               </div>
-              <div className="text-[14px] text-[#999] leading-relaxed">
+              <div className="text-[14px] text-[#999] leading-relaxed" style={{ fontFamily: 'var(--font-sans)' }}>
                 "{data.vectordb.result}"
               </div>
               <div className="text-[12px] text-[#c0392b] font-mono">
                 Failure: {data.vectordb.status}
               </div>
-              <p className="text-[13px] text-[#888] leading-relaxed italic border-t border-[#e4e4e4] pt-2">
+              <p className="text-[13px] text-[#888] leading-relaxed italic border-t border-[#e4e4e4] pt-2" style={{ fontFamily: 'var(--font-sans)' }}>
                 {data.vectordb.critique}
               </p>
             </div>

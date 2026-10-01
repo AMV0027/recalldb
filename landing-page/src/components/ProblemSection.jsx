@@ -20,7 +20,7 @@ const problems = [
   {
     num: "4.",
     title: "Context Poisoning in Small Models",
-    description: "Small language models (<8B parameters) suffer catastrophic attention collapse when conflicting, superseded memories are injected into context. Decoupled evaluation is required."
+    description: "Small language models under 8B parameters suffer catastrophic attention collapse when conflicting, superseded memories are injected into context. Decoupled evaluation is required."
   }
 ];
 
@@ -29,7 +29,7 @@ export default function ProblemSection() {
     <section id="failures" className="bg-white border-t border-[#e4e4e4]">
       <div className="max-w-6xl mx-auto px-6 py-20">
 
-        {/* Section Header — Lasimo two-column style */}
+        {/* Header — Lasimo two-column */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-10 mb-16">
           <div className="md:col-span-5">
             <motion.h2
@@ -37,7 +37,8 @@ export default function ProblemSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.55 }}
-              className="text-[38px] sm:text-[48px] font-normal leading-tight tracking-tight text-[#111]"
+              className="text-[38px] sm:text-[48px] leading-tight tracking-tight text-[#111]"
+              style={{ fontFamily: 'var(--font-display)', fontWeight: 400 }}
             >
               Why RecallDB?
             </motion.h2>
@@ -49,10 +50,11 @@ export default function ProblemSection() {
               viewport={{ once: true }}
               transition={{ duration: 0.55, delay: 0.1 }}
               className="text-[15px] text-[#555] leading-relaxed"
+              style={{ fontFamily: 'var(--font-sans)' }}
             >
               Persistent agent memory is not an approximate nearest-neighbor search problem. It is a bitemporal state-machine problem. Conventional vector stores have four fundamental failure modes.
             </motion.p>
-            <p className="text-[13px] text-[#888] mt-3 font-normal">
+            <p className="text-[13px] text-[#888] mt-3" style={{ fontFamily: 'var(--font-sans)' }}>
               Precise memory. Correct context. Always.
             </p>
           </div>
@@ -69,9 +71,21 @@ export default function ProblemSection() {
               transition={{ duration: 0.45, delay: idx * 0.08 }}
               className="pt-8 pr-8 last:pr-0 space-y-3"
             >
-              <div className="text-[32px] font-normal text-[#ccc] leading-none">{p.num}</div>
-              <h4 className="text-[14px] font-medium text-[#111] leading-snug pt-1">{p.title}</h4>
-              <p className="text-[13px] text-[#666] leading-relaxed">{p.description}</p>
+              <div
+                className="text-[32px] leading-none text-[#ddd]"
+                style={{ fontFamily: 'var(--font-display)', fontWeight: 400 }}
+              >
+                {p.num}
+              </div>
+              <h4
+                className="text-[14px] text-[#111] leading-snug pt-1"
+                style={{ fontFamily: 'var(--font-display)', fontWeight: 500 }}
+              >
+                {p.title}
+              </h4>
+              <p className="text-[13px] text-[#666] leading-relaxed" style={{ fontFamily: 'var(--font-sans)' }}>
+                {p.description}
+              </p>
             </motion.div>
           ))}
         </div>

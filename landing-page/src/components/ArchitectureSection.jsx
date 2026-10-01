@@ -36,7 +36,8 @@ export default function ArchitectureSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.55 }}
-              className="text-[38px] sm:text-[48px] font-normal leading-tight tracking-tight text-[#111]"
+              className="text-[38px] sm:text-[48px] leading-tight tracking-tight text-[#111]"
+              style={{ fontFamily: 'var(--font-display)', fontWeight: 400 }}
             >
               Embedded Storage Architecture.
             </motion.h2>
@@ -48,6 +49,7 @@ export default function ArchitectureSection() {
               viewport={{ once: true }}
               transition={{ duration: 0.55, delay: 0.1 }}
               className="text-[15px] text-[#555] leading-relaxed"
+              style={{ fontFamily: 'var(--font-sans)' }}
             >
               Zero cloud overhead. Zero daemon processes. RecallDB compiles into a self-contained local SQLite file with native vector BLOBs and inverted indices. A single file is all you need.
             </motion.p>
@@ -76,9 +78,21 @@ export default function ArchitectureSection() {
               transition={{ duration: 0.45, delay: idx * 0.1 }}
               className="pt-8 pr-8 last:pr-0 space-y-3"
             >
-              <div className="text-[28px] font-normal text-[#ccc] leading-none">{p.num}</div>
-              <h4 className="text-[14px] font-medium text-[#111] leading-snug">{p.title}</h4>
-              <p className="text-[13px] text-[#666] leading-relaxed">{p.body}</p>
+              <div
+                className="text-[28px] leading-none text-[#ddd]"
+                style={{ fontFamily: 'var(--font-display)', fontWeight: 400 }}
+              >
+                {p.num}
+              </div>
+              <h4
+                className="text-[14px] text-[#111] leading-snug"
+                style={{ fontFamily: 'var(--font-display)', fontWeight: 500 }}
+              >
+                {p.title}
+              </h4>
+              <p className="text-[13px] text-[#666] leading-relaxed" style={{ fontFamily: 'var(--font-sans)' }}>
+                {p.body}
+              </p>
               <div className="font-mono text-[11px] text-[#444] bg-[#f8f8f8] p-3 leading-relaxed whitespace-pre">
                 {p.code}
               </div>

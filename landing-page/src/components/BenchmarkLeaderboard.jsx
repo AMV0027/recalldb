@@ -47,9 +47,10 @@ export default function BenchmarkLeaderboard() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.55 }}
-              className="text-[38px] sm:text-[48px] font-normal leading-tight tracking-tight text-[#111]"
+              className="text-[38px] sm:text-[48px] leading-tight tracking-tight text-[#111]"
+              style={{ fontFamily: 'var(--font-display)', fontWeight: 400 }}
             >
-              SynTemp-100 Benchmark Results.
+              SynTemp-100 Benchmarks.
             </motion.h2>
           </div>
           <div className="md:col-span-7 flex flex-col justify-end">
@@ -59,6 +60,7 @@ export default function BenchmarkLeaderboard() {
               viewport={{ once: true }}
               transition={{ duration: 0.55, delay: 0.1 }}
               className="text-[15px] text-[#555] leading-relaxed"
+              style={{ fontFamily: 'var(--font-sans)' }}
             >
               Controlled empirical ablations measuring retrieval fidelity and temporal invalidation failure under rapid memory churn. RecallDB achieves perfect Recall@1 with zero temporal errors.
             </motion.p>
@@ -78,7 +80,7 @@ export default function BenchmarkLeaderboard() {
 
         {/* Data Table */}
         <div className="overflow-x-auto border-t border-[#e4e4e4]">
-          <table className="w-full text-left text-[13px]">
+          <table className="w-full text-left text-[13px]" style={{ fontFamily: 'var(--font-sans)' }}>
             <thead>
               <tr className="border-b border-[#e4e4e4] text-[11px] uppercase tracking-wider text-[#888]">
                 <th className="py-4 pr-6 font-normal">System</th>
@@ -98,15 +100,18 @@ export default function BenchmarkLeaderboard() {
                   className={`border-b border-[#f0f0f0] ${row.highlight ? 'bg-[#fafafa]' : 'hover:bg-[#fafafa]'} transition-colors`}
                 >
                   <td className="py-4 pr-6">
-                    <div className={`text-[13px] ${row.highlight ? 'text-[#111] font-medium' : 'text-[#333]'}`}>{row.system}</div>
+                    <div className={`text-[13px] ${row.highlight ? 'text-[#111]' : 'text-[#333]'}`}
+                      style={{ fontFamily: 'var(--font-display)', fontWeight: row.highlight ? 500 : 400 }}>
+                      {row.system}
+                    </div>
                     <div className="font-mono text-[11px] text-[#aaa] mt-0.5">{row.config}</div>
                   </td>
-                  <td className={`py-4 px-3 text-center font-mono text-[13px] ${row.highlight ? 'text-[#111] font-medium' : 'text-[#555]'}`}>{row.recall1}</td>
+                  <td className={`py-4 px-3 text-center font-mono text-[13px] ${row.highlight ? 'text-[#111]' : 'text-[#555]'}`}>{row.recall1}</td>
                   <td className="py-4 px-3 text-center font-mono text-[#555]">{row.recall5}</td>
                   <td className="py-4 px-3 text-center font-mono text-[#555]">{row.mrr}</td>
                   <td className="py-4 px-3 text-center font-mono text-[#555]">{row.histAcc}</td>
                   <td className="py-4 px-3 text-center font-mono text-[#555]">{row.currAcc}</td>
-                  <td className={`py-4 px-3 text-center font-mono ${row.highlight ? 'text-[#111] font-medium' : 'text-[#c0392b]'}`}>{row.etemp}</td>
+                  <td className={`py-4 px-3 text-center font-mono ${row.highlight ? 'text-[#111]' : 'text-[#c0392b]'}`}>{row.etemp}</td>
                   <td className="py-4 pl-4 text-right font-mono text-[#888]">{row.latency}</td>
                 </tr>
               ))}
@@ -114,10 +119,10 @@ export default function BenchmarkLeaderboard() {
           </table>
         </div>
 
-        {/* Finding footnote */}
-        <div className="mt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-[13px] text-[#666]">
+        {/* Finding */}
+        <div className="mt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-[13px] text-[#666]" style={{ fontFamily: 'var(--font-sans)' }}>
           <p>
-            <span className="text-[#111] font-medium">Finding:</span> Bitemporal Hybrid yields +224.7% relative gain in Recall@1 over pure dense search and drops E_temp from 69.2% to 0.0%.
+            <span className="text-[#111]" style={{ fontFamily: 'var(--font-display)', fontWeight: 500 }}>Finding:</span> Bitemporal Hybrid yields +224.7% relative gain in Recall@1 over pure dense search and drops E_temp from 69.2% to 0.0%.
           </p>
           <a href="#papers" className="flex items-center gap-1 text-[#111] border-b border-[#111] pb-0.5 flex-shrink-0 hover:text-[#555] hover:border-[#555] transition-colors">
             Read the Paper <ArrowUpRight className="w-3.5 h-3.5" />

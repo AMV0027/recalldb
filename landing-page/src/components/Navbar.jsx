@@ -8,11 +8,13 @@ export default function Navbar() {
         {/* Logo */}
         <a href="#lead" className="flex items-center gap-2 text-[#111]">
           <span className="font-mono text-[11px] tracking-widest uppercase text-[#666] select-none">[ DB ]</span>
-          <span className="text-sm font-medium tracking-tight">RecallDB</span>
+          <span className="text-[14px] tracking-tight" style={{ fontFamily: 'var(--font-display)', fontWeight: 500 }}>
+            RecallDB
+          </span>
         </a>
 
         {/* Nav Links */}
-        <nav className="hidden sm:flex items-center gap-8 text-[13px] text-[#555] font-normal">
+        <nav className="hidden sm:flex items-center gap-8 text-[13px] text-[#555]" style={{ fontFamily: 'var(--font-sans)' }}>
           <a href="#simulator" className="hover:text-[#111] transition-colors">Simulator</a>
           <a href="#failures" className="hover:text-[#111] transition-colors">Why RecallDB</a>
           <a href="#benchmarks" className="hover:text-[#111] transition-colors">Benchmarks</a>
@@ -26,6 +28,7 @@ export default function Navbar() {
           target="_blank"
           rel="noreferrer"
           className="flex items-center gap-2 text-[13px] px-4 py-1.5 border border-[#111] text-[#111] hover:bg-[#111] hover:text-white transition-colors duration-200"
+          style={{ fontFamily: 'var(--font-sans)' }}
         >
           <Github className="w-3.5 h-3.5" />
           <span>GitHub ↗</span>

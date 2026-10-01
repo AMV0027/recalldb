@@ -1,5 +1,5 @@
 import React from 'react';
-import { Github, Database } from 'lucide-react';
+import { Github } from 'lucide-react';
 
 export default function Footer() {
   return (
@@ -10,16 +10,18 @@ export default function Footer() {
           <div>
             <div className="flex items-center gap-2 mb-2">
               <span className="font-mono text-[11px] tracking-widest uppercase text-[#aaa]">[ DB ]</span>
-              <span className="text-[14px] font-medium text-[#111]">RecallDB</span>
+              <span className="text-[14px]" style={{ fontFamily: 'var(--font-display)', fontWeight: 500, color: '#111' }}>
+                RecallDB
+              </span>
             </div>
-            <p className="text-[12px] text-[#888]">
+            <p className="text-[12px] text-[#888]" style={{ fontFamily: 'var(--font-sans)' }}>
               Open-source bitemporal memory for AI agents.<br />
-              Built by <span className="text-[#111]">Arunmozhi Varman</span>, BloomBig Studio — Coimbatore, India.
+              Built by <span style={{ color: '#111', fontFamily: 'var(--font-display)', fontWeight: 500 }}>Arunmozhi Varman</span>, BloomBig Studio — Coimbatore, India.
             </p>
           </div>
 
           {/* Links */}
-          <div className="flex flex-wrap items-center gap-8 text-[13px] text-[#555]">
+          <div className="flex flex-wrap items-center gap-8 text-[13px] text-[#555]" style={{ fontFamily: 'var(--font-sans)' }}>
             <a
               href="https://github.com/AMV0027/recalldb"
               target="_blank"
@@ -34,7 +36,7 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-8 pt-6 border-t border-[#f0f0f0] text-[11px] text-[#bbb] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+        <div className="mt-8 pt-6 border-t border-[#f0f0f0] text-[11px] text-[#bbb] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2" style={{ fontFamily: 'var(--font-sans)' }}>
           <span>RecallDB v0.1.0 — All benchmark data is fully reproducible.</span>
           <span>© 2026 Arunmozhi Varman</span>
         </div>

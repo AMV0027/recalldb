@@ -76,6 +76,11 @@ class MemoryRecord:
     # Vector embedding (float32 array)
     embedding: Optional[List[float]] = None
 
+    @property
+    def state(self) -> str:
+        """Convenience property returning lifecycle state as lowercase string."""
+        return self.lifecycle_state.value if hasattr(self.lifecycle_state, "value") else str(self.lifecycle_state)
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert record to JSON-serializable dictionary."""
         return {
@@ -168,3 +173,23 @@ class RetrievalResult:
     record: MemoryRecord
     score: float
     explanation: Optional[ExplanationTrace] = None
+
+    @property
+    def id(self) -> str:
+        return self.record.id
+
+    @property
+    def content(self) -> str:
+        return self.record.content
+
+    @property
+    def state(self) -> str:
+        return self.record.state
+
+    @property
+    def valid_from(self) -> Optional[str]:
+        return self.record.valid_from
+
+    @property
+    def valid_until(self) -> Optional[str]:
+        return self.record.valid_until

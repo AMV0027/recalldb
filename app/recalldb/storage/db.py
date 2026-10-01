@@ -138,10 +138,10 @@ class Database:
                 record.superseded_by_id,
                 entities_json,
                 metadata_json,
-                record.tenant_id,
-                record.user_id,
-                record.agent_id,
-                record.thread_id,
+                record.tenant_id or "default",
+                record.user_id or "default",
+                record.agent_id or "default",
+                record.thread_id or "default",
                 blob
             ))
             conn.commit()
@@ -183,10 +183,10 @@ class Database:
                 r.superseded_by_id,
                 entities_json,
                 metadata_json,
-                r.tenant_id,
-                r.user_id,
-                r.agent_id,
-                r.thread_id,
+                r.tenant_id or "default",
+                r.user_id or "default",
+                r.agent_id or "default",
+                r.thread_id or "default",
                 blob
             ))
         with self.get_connection() as conn:
@@ -345,13 +345,15 @@ class Database:
                 event_time, valid_from, valid_until, recorded_at,
                 source, confidence, importance,
                 supersedes_id, superseded_by_id,
-                entities, metadata, embedding
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                entities, metadata,
+                tenant_id, user_id, agent_id, thread_id,
+                embedding
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
                 updated_new.id,
                 updated_new.content,
-                updated_new.memory_type.value,
-                updated_new.lifecycle_state.value,
+                updated_new.memory_type.value if hasattr(updated_new.memory_type, "value") else str(updated_new.memory_type),
+                updated_new.lifecycle_state.value if hasattr(updated_new.lifecycle_state, "value") else str(updated_new.lifecycle_state),
                 updated_new.event_time,
                 updated_new.valid_from,
                 updated_new.valid_until,
@@ -363,10 +365,15 @@ class Database:
                 updated_new.superseded_by_id,
                 json.dumps(updated_new.entities),
                 json.dumps(updated_new.metadata),
+                updated_new.tenant_id or "default",
+                updated_new.user_id or "default",
+                updated_new.agent_id or "default",
+                updated_new.thread_id or "default",
                 blob
             ))
             conn.commit()
 
+        self._write_version += 1
         return updated_existing, updated_new
 
     @retry_on_lock()

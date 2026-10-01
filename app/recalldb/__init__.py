@@ -37,7 +37,7 @@ class RecallDB:
     def __init__(
         self,
         db_path: str = "memory.db",
-        embedding_provider: Optional[EmbeddingProvider] = None,
+        embedding_provider: Optional[Union[EmbeddingProvider, str]] = None,
         alpha_semantic: float = 0.40,
         beta_lexical: float = 0.30,
         gamma_temporal: float = 0.15,
@@ -45,7 +45,13 @@ class RecallDB:
         eta_staleness: float = 0.50
     ):
         self.db = Database(db_path)
-        self.embedding = embedding_provider or LocalSentenceTransformerEmbedding()
+        if isinstance(embedding_provider, str):
+            if embedding_provider.lower() in ("deterministic", "mock", "hash"):
+                self.embedding = DeterministicHashEmbedding()
+            else:
+                self.embedding = LocalSentenceTransformerEmbedding()
+        else:
+            self.embedding = embedding_provider or LocalSentenceTransformerEmbedding()
         
         self.lexical = LexicalRetriever(self.db)
         self.semantic = SemanticRetriever(self.db, self.embedding)
@@ -113,11 +119,10 @@ class RecallDB:
             importance=importance,
             supersedes_id=supersedes_id,
             entities=entities or [],
-            metadata=metadata or {},
-            tenant_id=tenant_id,
-            user_id=user_id,
-            agent_id=agent_id,
-            thread_id=thread_id,
+            tenant_id=tenant_id or "default",
+            user_id=user_id or "default",
+            agent_id=agent_id or "default",
+            thread_id=thread_id or "default",
             embedding=emb,
         )
 
@@ -182,6 +187,7 @@ class RecallDB:
         self,
         query: str,
         k: int = 5,
+        top_k: Optional[int] = None,
         as_of: Optional[str] = None,
         filter_types: Optional[List[str]] = None,
         min_confidence: float = 0.0,
@@ -195,9 +201,10 @@ class RecallDB:
         Retrieve relevant memories using multi-factor hybrid ranking
         with point-in-time temporal evaluation and multi-tenancy scoping.
         """
+        effective_k = top_k if top_k is not None else k
         return self.hybrid.search(
             query=query,
-            top_k=k,
+            top_k=effective_k,
             as_of=as_of,
             filter_types=filter_types,
             min_confidence=min_confidence,
@@ -278,6 +285,10 @@ class RecallDB:
             importance=existing.importance,
             entities=existing.entities,
             metadata=existing.metadata,
+            tenant_id=existing.tenant_id,
+            user_id=existing.user_id,
+            agent_id=existing.agent_id,
+            thread_id=existing.thread_id,
             embedding=self.embedding.embed_text(content),
         )
 
@@ -290,17 +301,28 @@ class RecallDB:
 
     def supersede(
         self,
-        existing_id: str,
-        new_content: str,
+        existing_id: Optional[str] = None,
+        new_content: Optional[str] = None,
+        old_memory_id: Optional[str] = None,
+        new_fact: Optional[str] = None,
         event_time: Optional[str] = None,
         effective_time: Optional[str] = None,
-        source: Optional[str] = None
+        transition_time: Optional[str] = None,
+        source: Optional[str] = None,
+        **kwargs
     ) -> MemoryRecord:
         """Explicit supersession helper transitioning existing memory to SUPERSEDED."""
+        target_id = existing_id or old_memory_id
+        if not target_id:
+            raise ValueError("Either existing_id or old_memory_id must be provided to supersede.")
+        content = new_content or new_fact
+        if not content:
+            raise ValueError("Either new_content or new_fact must be provided to supersede.")
+        t_time = transition_time or effective_time or event_time
         return self.update(
-            memory_id=existing_id,
-            content=new_content,
-            event_time=effective_time or event_time,
+            memory_id=target_id,
+            content=content,
+            event_time=t_time,
             supersedes=True,
             source=source
         )

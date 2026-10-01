@@ -84,8 +84,72 @@ class Database:
     def _init_db(self) -> None:
         """Apply schema.sql DDL and run automatic backward-compatible migrations."""
         schema_path = Path(__file__).parent / "schema.sql"
-        with open(schema_path, "r", encoding="utf-8") as f:
-            ddl = f.read()
+        if schema_path.exists():
+            with open(schema_path, "r", encoding="utf-8") as f:
+                ddl = f.read()
+        else:
+            ddl = """
+            CREATE TABLE IF NOT EXISTS memories (
+                id TEXT PRIMARY KEY,
+                content TEXT NOT NULL,
+                memory_type TEXT NOT NULL DEFAULT 'fact',
+                lifecycle_state TEXT NOT NULL DEFAULT 'active',
+                event_time TEXT,
+                valid_from TEXT,
+                valid_until TEXT,
+                recorded_at TEXT NOT NULL,
+                source TEXT DEFAULT 'agent:interaction',
+                confidence REAL NOT NULL DEFAULT 1.0,
+                importance REAL NOT NULL DEFAULT 0.5,
+                supersedes_id TEXT,
+                superseded_by_id TEXT,
+                entities TEXT,
+                metadata TEXT,
+                tenant_id TEXT NOT NULL DEFAULT 'default',
+                user_id TEXT NOT NULL DEFAULT 'default',
+                agent_id TEXT NOT NULL DEFAULT 'default',
+                thread_id TEXT NOT NULL DEFAULT 'default',
+                embedding BLOB
+            );
+            CREATE TABLE IF NOT EXISTS entities (
+                name TEXT PRIMARY KEY,
+                entity_type TEXT,
+                metadata TEXT,
+                first_seen TEXT,
+                last_seen TEXT
+            );
+            CREATE TABLE IF NOT EXISTS relationships (
+                id TEXT PRIMARY KEY,
+                subject TEXT NOT NULL,
+                predicate TEXT NOT NULL,
+                object TEXT NOT NULL,
+                valid_from TEXT,
+                valid_until TEXT,
+                confidence REAL DEFAULT 1.0
+            );
+            CREATE VIRTUAL TABLE IF NOT EXISTS memories_fts USING fts5(
+                content,
+                entities,
+                id UNINDEXED
+            );
+            CREATE TRIGGER IF NOT EXISTS memories_ai AFTER INSERT ON memories BEGIN
+                INSERT INTO memories_fts(rowid, content, entities, id)
+                VALUES (new.rowid, new.content, COALESCE(new.entities, ''), new.id);
+            END;
+            CREATE TRIGGER IF NOT EXISTS memories_ad AFTER DELETE ON memories BEGIN
+                DELETE FROM memories_fts WHERE id = old.id;
+            END;
+            CREATE TRIGGER IF NOT EXISTS memories_au AFTER UPDATE ON memories BEGIN
+                DELETE FROM memories_fts WHERE id = old.id;
+                INSERT INTO memories_fts(rowid, content, entities, id)
+                VALUES (new.rowid, new.content, COALESCE(new.entities, ''), new.id);
+            END;
+            CREATE INDEX IF NOT EXISTS idx_memories_valid_from ON memories(valid_from);
+            CREATE INDEX IF NOT EXISTS idx_memories_valid_until ON memories(valid_until);
+            CREATE INDEX IF NOT EXISTS idx_memories_state ON memories(lifecycle_state);
+            CREATE INDEX IF NOT EXISTS idx_memories_scope ON memories(tenant_id, user_id, thread_id);
+            CREATE INDEX IF NOT EXISTS idx_memories_scope_state ON memories(tenant_id, user_id, lifecycle_state);
+            """
 
         with self.get_connection() as conn:
             conn.executescript(ddl)

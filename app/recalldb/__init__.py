@@ -367,8 +367,128 @@ class RecallDB:
         return count
 
 
+    # -------------------------------------------------------------------------
+    # 1-Line AI Provider Connectivity & Context Augmentation ("The Superpower")
+    # -------------------------------------------------------------------------
+
+    def context_for(
+        self,
+        query: str,
+        as_of: Optional[str] = None,
+        k: int = 3,
+        **scope_kwargs
+    ) -> str:
+        """
+        Generate a clean, structured Markdown memory context block for a query.
+        Ready to inject directly into any LLM prompt, system message, or template.
+        """
+        from recalldb.ai.prompt import format_memories_as_markdown
+        results = self.recall(query=query, k=k, as_of=as_of, **scope_kwargs)
+        return format_memories_as_markdown(results, as_of=as_of)
+
+    def augment(
+        self,
+        query: str,
+        system_prompt: Optional[str] = None,
+        as_of: Optional[str] = None,
+        k: int = 3,
+        **scope_kwargs
+    ) -> str:
+        """
+        Synthesize an augmented system prompt combining base instructions with verified memories.
+        """
+        from recalldb.ai.prompt import build_augmented_system_prompt
+        results = self.recall(query=query, k=k, as_of=as_of, **scope_kwargs)
+        return build_augmented_system_prompt(base_prompt=system_prompt, memories=results, as_of=as_of)
+
+    def augment_messages(
+        self,
+        messages: List[Dict[str, Any]],
+        query: Optional[str] = None,
+        as_of: Optional[str] = None,
+        k: int = 3,
+        **scope_kwargs
+    ) -> List[Dict[str, Any]]:
+        """
+        Seamlessly inject relevant point-in-time memories into an existing message list.
+        Compatible with OpenAI, Anthropic, Ollama, LangChain, and LiteLLM message schemas.
+        If query is not provided, extracts query from the last user message.
+        """
+        from recalldb.ai.prompt import inject_context_into_messages
+        if not query:
+            for m in reversed(messages):
+                if m.get("role") == "user":
+                    query = m.get("content", "")
+                    break
+        query = query or ""
+        results = self.recall(query=query, k=k, as_of=as_of, **scope_kwargs)
+        return inject_context_into_messages(messages=messages, memories=results, as_of=as_of)
+
+    def chat(
+        self,
+        query: str,
+        provider: Union[str, Any] = "ollama",
+        model: Optional[str] = None,
+        system_prompt: Optional[str] = None,
+        as_of: Optional[str] = None,
+        k: int = 3,
+        temperature: float = 0.2,
+        **kwargs
+    ) -> Any:
+        """
+        Execute an end-to-end memory-grounded conversational turn in a single line of code.
+        Automatically retrieves point-in-time memories, injects verified context, and queries
+        the specified provider ('ollama', 'openai', 'anthropic', or custom provider).
+        """
+        from recalldb.ai import get_provider
+        scope_keys = {"tenant_id", "user_id", "thread_id", "filter_types", "min_confidence"}
+        scope_kwargs = {k: v for k, v in kwargs.items() if k in scope_keys}
+        provider_kwargs = {k: v for k, v in kwargs.items() if k not in scope_keys}
+
+        ai = get_provider(provider, **provider_kwargs) if isinstance(provider, str) else provider
+        augmented_prompt = self.augment(
+            query=query,
+            system_prompt=system_prompt or "You are a helpful AI assistant backed by persistent RecallDB memory.",
+            as_of=as_of,
+            k=k,
+            **scope_kwargs
+        )
+        return ai.complete(prompt=query, system_prompt=augmented_prompt, model=model, temperature=temperature)
+
+    def as_tool(self, format: str = "openai") -> List[Dict[str, Any]]:
+        """
+        Return function-calling tool specifications (OpenAI / Ollama / Anthropic format)
+        allowing autonomous agents to recall, remember, and supersede memories dynamically.
+        """
+        from recalldb.ai.tools import get_openai_tools
+        return get_openai_tools()
+
+    def execute_tool(self, tool_name: str, arguments: Dict[str, Any], **scope_kwargs) -> Dict[str, Any]:
+        """
+        Execute an LLM function call against this RecallDB instance.
+        """
+        from recalldb.ai.tools import execute_tool_call
+        return execute_tool_call(self, tool_name, arguments, **scope_kwargs)
+
+
+def connect(
+    db_path: str = "memory.db",
+    embedding_provider: Optional[Union[EmbeddingProvider, str]] = "deterministic",
+    **kwargs
+) -> RecallDB:
+    """
+    One-line factory function connecting to or creating a RecallDB instance.
+    Example:
+        db = recalldb.connect()
+        db.remember("User preferred dark theme")
+        reply = db.chat("What theme does user prefer?")
+    """
+    return RecallDB(db_path=db_path, embedding_provider=embedding_provider, **kwargs)
+
+
 __all__ = [
     "RecallDB",
+    "connect",
     "MemoryRecord",
     "MemoryType",
     "MemoryLifecycleState",

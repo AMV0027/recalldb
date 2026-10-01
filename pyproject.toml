@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -8,35 +8,68 @@ version = "0.1.0"
 authors = [
   { name = "Arunmozhi Varman", email = "arun@bloombig.agency" },
 ]
-description = "A local-first, bitemporal hybrid persistent memory engine and reproducible benchmark for autonomous AI agents."
+description = "A local-first, bitemporal hybrid persistent memory engine for autonomous AI agents."
 readme = "README.md"
+license = "MIT"
 requires-python = ">=3.9"
+keywords = [
+    "agent-memory",
+    "bitemporal",
+    "rag",
+    "sqlite",
+    "llm",
+    "ollama",
+    "openai",
+    "anthropic",
+    "local-first",
+    "memory-engine",
+    "autonomous-agents"
+]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "Topic :: Database :: Database Engines/Servers",
+    "Operating System :: OS Independent",
 ]
 dependencies = [
     "numpy>=1.24.0",
 ]
 
 [project.optional-dependencies]
+ai = [
+    "openai>=1.0.0",
+    "anthropic>=0.18.0",
+]
 ml = [
     "sentence-transformers>=2.2.0",
     "torch>=2.0.0",
 ]
+all = [
+    "sentence-transformers>=2.2.0",
+    "torch>=2.0.0",
+    "openai>=1.0.0",
+    "anthropic>=0.18.0",
+]
 dev = [
     "pytest>=7.0.0",
     "ruff>=0.1.0",
+    "build>=1.0.0",
+    "twine>=4.0.0",
 ]
+
+[project.urls]
+Homepage = "https://github.com/AMV0027/recalldb"
+Documentation = "https://github.com/AMV0027/recalldb#readme"
+Repository = "https://github.com/AMV0027/recalldb.git"
+Issues = "https://github.com/AMV0027/recalldb/issues"
 
 [project.scripts]
 recalldb = "recalldb.cli.main:main"
@@ -45,3 +78,7 @@ membench = "recalldb.bench.cli:main"
 [tool.setuptools.packages.find]
 where = ["app"]
 include = ["recalldb*"]
+
+[tool.setuptools.package-data]
+"recalldb.storage" = ["schema.sql"]
+"recalldb.bench" = ["data/*.json"]

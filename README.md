@@ -49,41 +49,103 @@ Modern AI agents maintain context within single conversation sessions, but long-
 
 ---
 
-## 🚀 Quickstart
+## 📦 Installation
 
-### Python API
+```bash
+# Standard local-first installation (Zero external daemons, pure SQLite WAL)
+pip install recalldb
+
+# Optional: with AI provider SDKs
+pip install "recalldb[ai]"     # Installs OpenAI & Anthropic SDKs
+
+# Optional: with local PyTorch SentenceTransformers
+pip install "recalldb[ml]"     # Local neural embedding models
+```
+
+---
+
+## ⚡ The 1-Line AI Superpower
+
+RecallDB gives **any** AI agent or LLM persistent, bitemporal long-term memory with **a single line of code**.
+
+### 1. Zero-Setup Memory Chat with Local Edge Models (Ollama)
+```python
+import recalldb
+
+# Connect in 1 line
+db = recalldb.connect()
+
+# Ingest knowledge
+db.remember("Production API runs on Rust Axum with PostgreSQL 16 on port 5432")
+
+# Chat with local Ollama model in 1 line — memories automatically retrieved & grounded!
+response = db.chat("What port does our database run on?", provider="ollama", model="minicpm-v4.6:latest")
+print(response.content)
+# -> "Based on your verified configuration, PostgreSQL runs on port 5432."
+```
+
+### 2. Connect to OpenAI, Anthropic, or Any OpenAI-Compatible Provider
+```python
+# OpenAI GPT-4o
+reply = db.chat("What port does our database run on?", provider="openai", model="gpt-4o")
+
+# Anthropic Claude 3.5 Sonnet
+reply = db.chat("What port does our database run on?", provider="anthropic", model="claude-3-5-sonnet-20241022")
+
+# Groq / DeepSeek / LocalAI (OpenAI-compatible)
+reply = db.chat(
+    "What port does our database run on?",
+    provider="openai",
+    base_url="https://api.groq.com/openai/v1",
+    model="llama-3.3-70b-versatile"
+)
+```
+
+### 3. Augment Existing Message Arrays for Any Agent Framework
+```python
+# Seamlessly inject memories into standard OpenAI / Anthropic / LangChain message lists
+messages = [
+    {"role": "user", "content": "Deploy the backend service"}
+]
+
+# 1-liner memory augmentation:
+augmented_messages = db.augment_messages(messages, user_id="arunmozhi")
+# -> Injects verified bitemporal memories directly into the system prompt!
+```
+
+### 4. Expose as Function-Calling Tools to Autonomous Agents
+```python
+# Export OpenAI/Ollama/Anthropic compatible function tools in 1 line:
+tools = db.as_tool()
+
+# When the LLM outputs a tool call, execute it in 1 line:
+result = db.execute_tool("recall_memory", {"query": "database configuration"})
+```
+
+---
+
+## 🕰️ Bitemporal Time Travel & Zero Contradiction Collapse
+
+Unlike flat vector databases that suffer from temporal blindness and overwrite prior reality, RecallDB preserves an immutable historical audit trail:
 
 ```python
-from recalldb import RecallDB
+# 1. State in 2024
+m1 = db.remember("Primary database is MySQL 8.0 on port 3306", valid_from="2024-01-01T00:00:00Z")
 
-# 1. Initialize local persistent memory
-memory = RecallDB("agent_memory.db")
-
-# 2. Store facts and state with provenance and temporal bounds
-memory.remember(
-    "User develops backend systems in Python",
-    event_time="2024-05-10",
-    source="conversation:104"
+# 2. State migration in 2026 (atomic supersession)
+m2 = db.supersede(
+    old_memory_id=m1.id,
+    new_fact="Migrated primary database to PostgreSQL 16 on port 5432",
+    transition_time="2026-02-01T00:00:00Z"
 )
 
-# 3. Later state update (supersedes previous knowledge)
-memory.remember(
-    "User transitioned backend development to Rust",
-    event_time="2026-01-15",
-    source="conversation:412"
-)
+# Current live query -> Returns PostgreSQL
+current = db.recall("What database do we use?")
+print(current[0].content)  # -> "PostgreSQL 16 on port 5432"
 
-# 4. Point-in-time historical recall
-past = memory.recall("What backend language does the user use?", as_of="2024-12-01")
-print(past[0].content)  # -> "User develops backend systems in Python"
-
-# 5. Current state recall
-current = memory.recall("What backend language does the user use?", as_of="2026-06-01")
-print(current[0].content)  # -> "User transitioned backend development to Rust"
-
-# 6. Explain retrieval reasoning
-explanation = memory.explain(current[0].id)
-print(explanation)
+# Historical time-travel query -> Returns MySQL (Zero amnesia!)
+past = db.recall("What database do we use?", as_of="2025-06-01T00:00:00Z")
+print(past[0].content)     # -> "MySQL 8.0 on port 3306"
 ```
 
 ---

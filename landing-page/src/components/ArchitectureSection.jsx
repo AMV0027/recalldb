@@ -1,63 +1,68 @@
 import React from 'react';
-import { Database, Layers, Zap } from 'lucide-react';
+import ArchitectureDiagramSvg from './ArchitectureDiagramSvg';
 
 export default function ArchitectureSection() {
   return (
-    <section id="architecture" className="py-20 bg-zinc-950 border-b border-zinc-900">
+    <section id="architecture" className="py-14 bg-[#faf8f5] border-b border-[#e7e5e4]">
       <div className="max-w-5xl mx-auto px-6">
-        <div className="text-center max-w-2xl mx-auto mb-14">
-          <div className="text-xs font-mono uppercase tracking-wider text-zinc-400 mb-2">
-            Storage Engine
+        {/* Section Header */}
+        <div className="border-b border-[#1c1917] pb-3 mb-8">
+          <div className="text-[11px] font-serif uppercase tracking-widest text-[#78716c] mb-1">
+            Section V &bull; Systems Architecture
           </div>
-          <h2 className="text-2xl sm:text-3xl font-medium text-zinc-100 tracking-tight">
-            Embedded Systems Architecture
-          </h2>
-          <p className="text-zinc-400 text-sm mt-3 leading-relaxed">
+          <h3 className="font-serif text-2xl sm:text-3xl font-normal text-[#1c1917]">
+            Embedded Storage Subsystem
+          </h3>
+          <p className="font-serif text-xs sm:text-sm text-[#57534e] mt-1 leading-relaxed">
             Zero cloud overhead. Zero daemon processes. RecallDB compiles into a self-contained local SQLite file with native vector BLOBs and inverted indices.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Card 1: SQLite WAL Engine */}
-          <div className="p-6 bg-zinc-900/50 border border-zinc-800 rounded-sm">
-            <div className="w-8 h-8 rounded-sm bg-zinc-800 border border-zinc-700 text-zinc-300 flex items-center justify-center mb-4">
-              <Database className="w-4 h-4" />
-            </div>
-            <h3 className="text-base font-medium text-zinc-100 mb-2">SQLite WAL Storage</h3>
-            <p className="text-zinc-400 text-xs leading-relaxed mb-4">
-              Configured with write-ahead logging (WAL), normal sync, and 64MB cache. Enables concurrent multithreaded readers alongside atomic single-writer transactions with sub-millisecond execution.
+        {/* Schematic Engraving */}
+        <ArchitectureDiagramSvg />
+
+        {/* 3 Editorial Columns (No Heavy Containers) */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-4 font-serif">
+          {/* Pillar 1 */}
+          <div className="border-t-2 border-[#1c1917] pt-3 space-y-2">
+            <h4 className="text-sm font-semibold text-[#1c1917]">
+              1. SQLite WAL Engine
+            </h4>
+            <p className="text-xs text-[#57534e] leading-relaxed">
+              Configured with write-ahead logging (WAL), normal sync, and a 64MB memory cache. Delivers concurrent multithreaded readers alongside atomic single-writer ACID transactions under 15ms.
             </p>
-            <div className="p-2.5 bg-zinc-950 border border-zinc-800 rounded-sm font-mono text-[11px] text-zinc-300">
+            <div className="p-2.5 bg-[#f5f2eb] border border-[#e7e5e4] font-mono text-[10px] text-[#1c1917] mt-3">
               PRAGMA journal_mode = WAL;<br />
-              PRAGMA synchronous = NORMAL;
+              PRAGMA synchronous = NORMAL;<br />
+              PRAGMA cache_size = -64000;
             </div>
           </div>
 
-          {/* Card 2: Bitemporal Intervals */}
-          <div className="p-6 bg-zinc-900/50 border border-zinc-800 rounded-sm">
-            <div className="w-8 h-8 rounded-sm bg-zinc-800 border border-zinc-700 text-zinc-300 flex items-center justify-center mb-4">
-              <Layers className="w-4 h-4" />
-            </div>
-            <h3 className="text-base font-medium text-zinc-100 mb-2">Bitemporal Relational Model</h3>
-            <p className="text-zinc-400 text-xs leading-relaxed mb-4">
-              Tracks Event Time (<span className="font-mono text-zinc-300">t_e</span>) and Valid Interval (<span className="font-mono text-zinc-300">[t_s, t_e)</span>) alongside Transaction Time (<span className="font-mono text-zinc-300">t_r</span>). Enables immutable point-in-time state slicing without destructive mutations.
+          {/* Pillar 2 */}
+          <div className="border-t-2 border-[#1c1917] pt-3 space-y-2">
+            <h4 className="text-sm font-semibold text-[#1c1917]">
+              2. Bitemporal Relational Model
+            </h4>
+            <p className="text-xs text-[#57534e] leading-relaxed">
+              Explicitly bifurcates Valid Time intervals <span className="font-mono text-[#1c1917]">[t_s, t_e)</span> from Transaction Time <span className="font-mono text-[#1c1917]">t_r</span>. Immutable point-in-time state slicing without destructive in-place mutations.
             </p>
-            <div className="p-2.5 bg-zinc-950 border border-zinc-800 rounded-sm font-mono text-[11px] text-zinc-300">
-              as_of(t) = valid_from &le; t &lt; valid_until
+            <div className="p-2.5 bg-[#f5f2eb] border border-[#e7e5e4] font-mono text-[10px] text-[#1c1917] mt-3">
+              as_of(t) = valid_from &le; t &lt; valid_until<br />
+              Lineage DAG: ACTIVE &rarr; SUPERSEDED
             </div>
           </div>
 
-          {/* Card 3: Dual-Channel Retrieval */}
-          <div className="p-6 bg-zinc-900/50 border border-zinc-800 rounded-sm">
-            <div className="w-8 h-8 rounded-sm bg-zinc-800 border border-zinc-700 text-zinc-300 flex items-center justify-center mb-4">
-              <Zap className="w-4 h-4" />
-            </div>
-            <h3 className="text-base font-medium text-zinc-100 mb-2">Dual-Channel Fusion</h3>
-            <p className="text-zinc-400 text-xs leading-relaxed mb-4">
-              SQLite FTS5 Porter tokenizer indexes alphanumeric tokens while SIMD float32 dot products compute vector cosine similarity. Blended via multi-factor rank normalization.
+          {/* Pillar 3 */}
+          <div className="border-t-2 border-[#1c1917] pt-3 space-y-2">
+            <h4 className="text-sm font-semibold text-[#1c1917]">
+              3. Dual-Channel Rank Fusion
+            </h4>
+            <p className="text-xs text-[#57534e] leading-relaxed">
+              FTS5 BM25 Porter tokenizer indexes alphanumeric exact tokens while SIMD float32 cosine kernels score semantic vectors. Blended via temporal interval gating.
             </p>
-            <div className="p-2.5 bg-zinc-950 border border-zinc-800 rounded-sm font-mono text-[11px] text-zinc-300">
-              Score = &alpha;Vector + &beta;BM25 + &gamma;Temporal
+            <div className="p-2.5 bg-[#f5f2eb] border border-[#e7e5e4] font-mono text-[10px] text-[#1c1917] mt-3">
+              Score = &alpha;Vector + &beta;BM25 + &gamma;Temporal<br />
+              Gated by: isValidAt(query_time)
             </div>
           </div>
         </div>

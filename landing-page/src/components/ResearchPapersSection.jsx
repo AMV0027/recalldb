@@ -1,70 +1,98 @@
 import React from 'react';
-import { FileText, ArrowUpRight, BookOpen } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 
 export default function ResearchPapersSection() {
   const papers = [
     {
-      type: "COMPREHENSIVE SURVEY & TAXONOMY",
-      title: "Persistent, Temporal, and Hierarchical Memory in Autonomous Agents: A Comprehensive Survey and Taxonomy",
-      venue: "Preprint / IEEE Trans. on AI & Autonomous Systems Track",
+      badge: "Empirical Systems Paper",
+      title: "RecallDB: A Local-First, Bitemporal Hybrid Engine for Long-Horizon Agent Memory and Decoupled Evaluation",
+      venue: "NeurIPS / VLDB / OSDI AI Systems Track (2026)",
       author: "Arunmozhi Varman",
-      abstract: "A systematic review and taxonomy of 12 landmark agent memory systems (MemGPT/Letta, LongMemEval, Mem0, HippoRAG, Zep, A-MEM). Identifies the Four Grand Failures of Vector Memory and formalizes bitemporal relational state solutions.",
-      link: "https://github.com/AMV0027/recalldb/blob/main/research/review_paper/survey_agent_memory.md"
+      abstract: "Formalizes the bitemporal state-machine algebra, embedded SQLite WAL engine architecture, and empirical evaluation on the SynTemp-100 benchmark. Demonstrates +224.7% relative gain in Recall@1 and drops temporal invalidation failure (E_temp) from 69.2% to 0.0% with sub-15ms local retrieval.",
+      metrics: "1.0000 Recall@1 &bull; 0.0% E_temp &bull; 11.47ms p50",
+      link: "https://github.com/AMV0027/recalldb/blob/main/research/empirical_paper/recalldb_empirical.md"
     },
     {
-      type: "EMPIRICAL RESEARCH PAPER",
-      title: "RecallDB: A Local-First, Bitemporal Hybrid Engine for Long-Horizon Agent Memory and Decoupled Evaluation",
-      venue: "NeurIPS / VLDB / OSDI AI Systems Track",
+      badge: "Systematic Survey & Taxonomy",
+      title: "Persistent, Temporal, and Hierarchical Memory in Autonomous Agents: A Comprehensive Survey and Taxonomy",
+      venue: "IEEE Trans. on AI & Autonomous Systems Track (2026)",
       author: "Arunmozhi Varman",
-      abstract: "Presents the mathematical formulation, system architecture, and controlled empirical ablations on SynTemp-50. Proves a +66.7% Recall@1 improvement and 100% historical accuracy with sub-25ms local retrieval.",
-      link: "https://github.com/AMV0027/recalldb/blob/main/research/empirical_paper/recalldb_empirical.md"
+      abstract: "A rigorous survey of 12 landmark agent memory systems (MemGPT/Letta, LongMemEval, Mem0, HippoRAG, Zep, A-MEM). Uncovers the Four Grand Failures of Vector Memory and establishes a 5-layer taxonomic framework for bitemporal relational state machines.",
+      metrics: "12 Systems Evaluated &bull; 4 Failure Modes &bull; Bitemporal DAG",
+      link: "https://github.com/AMV0027/recalldb/blob/main/research/review_paper/survey_agent_memory.md"
     }
   ];
 
   return (
-    <section id="research" className="py-20 bg-zinc-950 border-b border-zinc-900">
-      <div className="max-w-5xl mx-auto px-6">
-        <div className="text-center max-w-2xl mx-auto mb-14">
-          <div className="text-xs font-mono uppercase tracking-wider text-zinc-400 mb-2">
-            Publications
+    <section id="papers" className="py-14 bg-[#faf8f5] border-b border-[#e7e5e4]">
+      <div className="max-w-5xl mx-auto px-6 font-serif">
+        {/* Section Header */}
+        <div className="border-b border-[#1c1917] pb-3 mb-8">
+          <div className="text-[11px] uppercase tracking-widest text-[#78716c] mb-1">
+            Section VII &bull; Academic Literature
           </div>
-          <h2 className="text-2xl sm:text-3xl font-medium text-zinc-100 tracking-tight">
-            Scientific Research Papers
-          </h2>
-          <p className="text-zinc-400 text-sm mt-3 leading-relaxed">
-            RecallDB was built as a research-grade scientific instrument. All benchmark receipts and methodologies are fully reproducible.
+          <h3 className="text-2xl sm:text-3xl font-normal text-[#1c1917]">
+            Scientific Research Manuscripts
+          </h3>
+          <p className="text-xs sm:text-sm text-[#57534e] mt-1 leading-relaxed">
+            RecallDB was engineered as a reproducible scientific instrument. Benchmark datasets, ablation scripts, and manuscript drafts are fully documented.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Papers in Two Broadsheet Columns (No Heavy Containers) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 pb-10">
           {papers.map((p, idx) => (
-            <div key={idx} className="p-6 bg-zinc-900/50 border border-zinc-800 rounded-sm flex flex-col justify-between">
+            <div key={idx} className="space-y-3 flex flex-col justify-between">
               <div>
-                <div className="text-[10px] font-mono uppercase text-zinc-400 mb-2">
-                  {p.type}
+                <div className="text-xs uppercase tracking-wider text-[#78716c] border-b border-[#e7e5e4] pb-1 mb-2">
+                  {p.badge}
                 </div>
-                <h3 className="text-base font-medium text-zinc-100 mb-2 leading-snug">
+
+                <h4 className="text-base font-semibold text-[#1c1917] leading-snug">
                   {p.title}
-                </h3>
-                <div className="text-xs text-zinc-400 font-mono mb-4">
-                  {p.author} • {p.venue}
+                </h4>
+
+                <div className="text-xs text-[#78716c] mt-1 italic">
+                  {p.author} &bull; {p.venue}
                 </div>
-                <p className="text-zinc-400 text-xs leading-relaxed mb-6">
+
+                <p className="text-xs text-[#57534e] leading-relaxed mt-3">
                   {p.abstract}
                 </p>
               </div>
 
-              <a
-                href={p.link}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1.5 text-xs font-medium text-zinc-200 hover:text-white transition-colors"
-              >
-                <span>Read Full Paper Manuscript</span>
-                <ArrowUpRight className="w-3.5 h-3.5" />
-              </a>
+              <div className="pt-3 border-t border-[#e7e5e4]">
+                <div className="text-[11px] font-mono text-[#78716c] mb-2">
+                  Verified: {p.metrics}
+                </div>
+
+                <a
+                  href={p.link}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1 text-xs font-semibold text-[#1c1917] hover:underline underline-offset-4 uppercase tracking-wider"
+                >
+                  <span>Read Full Paper Manuscript</span>
+                  <ArrowUpRight className="w-3.5 h-3.5" />
+                </a>
+              </div>
             </div>
           ))}
+        </div>
+
+        {/* Academic Citations Reference Bar */}
+        <div className="pt-4 border-t-2 border-[#1c1917] text-xs text-[#57534e]">
+          <div className="uppercase text-[11px] tracking-wider text-[#78716c] mb-2 font-semibold">
+            Comparative Literature Anchors (2026):
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <p>
+              <strong className="text-[#1c1917]">Zhou et al. (Tsinghua / OpenDataBox 2026):</strong> Proved that dense vector RAG induces &gt;50% past-state hallucination in autonomous agents under memory evolution.
+            </p>
+            <p>
+              <strong className="text-[#1c1917]">Oracle Agent Memory (Alake et al. 2026):</strong> Demonstrated that structured decoupled memory systems achieve 10.7x token overhead reduction vs. prompt stuffing.
+            </p>
+          </div>
         </div>
       </div>
     </section>

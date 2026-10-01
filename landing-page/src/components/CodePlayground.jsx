@@ -1,54 +1,100 @@
 import React, { useState } from 'react';
-import { Terminal, Copy, Check } from 'lucide-react';
+import { Copy, Check } from 'lucide-react';
 
 const SNIPPETS = {
-  remember: `# 1. Ingest fact with bitemporal metadata & provenance
+  chat: `# 1. Seamless 1-Line AI Superpower: Connect & Chat
+import recalldb
+
+# Initialize single-file embedded memory
+db = recalldb.connect("agent_memory.db")
+
+# Chat with automatic memory recall & background fact extraction
+# Works with Ollama (minicpm-v4.6:latest, llama3), OpenAI, or Anthropic
+response = db.chat(
+    "What backend framework was I using in my 2022 project?",
+    provider="ollama",
+    model="minicpm-v4.6:latest"
+)
+print(response)
+# -> "In mid-2022, you were using Python 3.10 with FastAPI (as verified by your past project records)."`,
+
+  bitemporal: `# 2. Bitemporal Memory Ingestion & Point-in-Time Time Travel
 from recalldb import RecallDB
 
-memory = RecallDB("agent_memory.db")
+db = RecallDB("agent_memory.db")
 
-memory.remember(
-    "User develops backend microservices in Python",
-    event_time="2024-05-10",
-    valid_from="2024-05-10",
-    source="conversation:104",
-    importance=0.8
-)`,
-  recall: `# 2. Point-in-time historical or present-state recall
-# Query past state
-past = memory.recall(
-    "What backend language does the user use?",
-    as_of="2024-12-01",
+# Ingest fact with valid interval and provenance
+db.remember(
+    "User prefers Postgres for transactional databases",
+    event_time="2023-01-15",
+    valid_from="2023-01-15",
+    source="conversation:104"
+)
+
+# Time travel query: slice past historical state without database rollback
+past_memories = db.recall(
+    "What database does the user prefer?",
+    as_of="2023-06-01",
     k=3
 )
-print(past[0].record.content)  # -> Python
+print(past_memories[0].content)  # -> Postgres`,
 
-# Query present state
-current = memory.recall(
-    "What backend language does the user use?",
-    k=3
+  augment: `# 3. Zero-Friction Message Augmentation (OpenAI / LangChain)
+from recalldb import RecallDB
+
+db = RecallDB("agent_memory.db")
+
+messages = [
+    {"role": "user", "content": "Help me refactor my database connection"}
+]
+
+# Automatically retrieves relevant bitemporal context and injects as system instruction
+augmented_messages = db.augment_messages(
+    messages,
+    k=3,
+    as_of="2026-06-01"
 )
-print(current[0].record.content)  # -> Rust`,
-  update: `# 3. Atomic supersession update (preserves historical audit trail)
-memory.update(
+
+# Send directly to any standard LLM client
+# client.chat.completions.create(model="gpt-4o", messages=augmented_messages)`,
+
+  tools: `# 4. Autonomous Agent Function Calling Tool
+from recalldb import RecallDB
+
+db = RecallDB("agent_memory.db")
+
+# Export standardized tool schemas for OpenAI, Anthropic, or LangChain
+tools = [
+    db.as_tool(operation="remember"),
+    db.as_tool(operation="recall")
+]
+
+# Provide to agent runtime:
+# client.chat.completions.create(..., tools=tools)`,
+
+  audit: `# 5. Non-Destructive Supersession & Provenance Audit
+from recalldb import RecallDB
+
+db = RecallDB("agent_memory.db")
+
+# Transition memory without deleting historical state
+db.update(
     memory_id="mem_a1b2c3d4",
-    content="User transitioned backend microservices to Rust",
-    event_time="2026-01-15",
+    content="User migrated database layer from Postgres to TiDB",
+    event_time="2026-02-01",
     supersedes=True
-)`,
-  explain: `# 4. Audit provenance, confidence, and supersession DAG
-report = memory.explain("mem_a1b2c3d4")
-print(report)
+)
 
-# Output includes:
-# - Valid Window: [2024-05-10 -> 2026-01-15)
-# - State: SUPERSEDED
-# - Superseded By: mem_f9e8d7c6
-# - Evolution Lineage Chain`
+# Inspect provenance and supersession DAG
+report = db.explain("mem_a1b2c3d4")
+print(report)
+# -> Status: SUPERSEDED
+# -> Valid Interval: [2023-01-15 -> 2026-02-01)
+# -> Superseded By: mem_f9e8d7c6 (TiDB)`
 };
 
 export default function CodePlayground() {
-  const [activeTab, setActiveTab] = useState("remember");
+  const [activeTab, setActiveTab] = useState("chat");
   const [copied, setCopied] = useState(false);
 
   const copyCode = () => {
@@ -57,53 +103,69 @@ export default function CodePlayground() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const tabs = [
+    { id: "chat", label: "1-Line Connect & Chat" },
+    { id: "bitemporal", label: "Time-Travel Recall" },
+    { id: "augment", label: "Message Augmentation" },
+    { id: "tools", label: "Agent Tool Schema" },
+    { id: "audit", label: "Lineage & Audit" }
+  ];
+
   return (
-    <section id="quickstart" className="py-20 bg-zinc-950 border-b border-zinc-900">
-      <div className="max-w-4xl mx-auto px-6">
-        <div className="text-center max-w-2xl mx-auto mb-12">
-          <div className="text-xs font-mono uppercase tracking-wider text-zinc-400 mb-2">
-            Python SDK
+    <section id="sdk" className="py-14 bg-[#faf8f5] border-b border-[#e7e5e4]">
+      <div className="max-w-5xl mx-auto px-6">
+        {/* Section Header */}
+        <div className="border-b border-[#1c1917] pb-3 mb-8">
+          <div className="text-[11px] font-serif uppercase tracking-widest text-[#78716c] mb-1">
+            Section VI &bull; Developer Specification
           </div>
-          <h2 className="text-2xl sm:text-3xl font-medium text-zinc-100 tracking-tight">
-            Developer API
-          </h2>
-          <p className="text-zinc-400 text-sm mt-3 leading-relaxed">
-            Minimal, single-import persistent memory engine for any agent framework.
+          <h3 className="font-serif text-2xl sm:text-3xl font-normal text-[#1c1917]">
+            Python SDK & 1-Line Superpowers
+          </h3>
+          <p className="font-serif text-xs sm:text-sm text-[#57534e] mt-1 leading-relaxed">
+            Connect RecallDB to Ollama (minicpm-v4.6:latest), OpenAI, Anthropic, or LangChain with zero daemon setup and minimal code.
           </p>
         </div>
 
-        {/* Code Box */}
-        <div className="bg-zinc-900/60 border border-zinc-800 rounded-sm overflow-hidden">
+        {/* Tidy Broadsheet Code Box */}
+        <div className="border border-[#e7e5e4] bg-[#f5f2eb]">
           {/* Tabs */}
-          <div className="flex items-center justify-between border-b border-zinc-800 px-4 py-2 bg-zinc-950">
-            <div className="flex items-center gap-1">
-              {['remember', 'recall', 'update', 'explain'].map((tab) => (
+          <div className="flex flex-wrap items-center justify-between border-b border-[#e7e5e4] px-4 py-2 bg-[#f0eae1]">
+            <div className="flex flex-wrap items-center gap-1 font-serif">
+              {tabs.map((tab) => (
                 <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`px-3 py-1 font-mono text-xs rounded-sm transition-colors ${
-                    activeTab === tab
-                      ? 'bg-zinc-800 text-zinc-100 font-medium'
-                      : 'text-zinc-400 hover:text-zinc-200'
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`px-3 py-1 text-xs transition-colors ${
+                    activeTab === tab.id
+                      ? 'bg-[#1c1917] text-[#faf8f5] font-medium'
+                      : 'text-[#57534e] hover:text-[#1c1917]'
                   }`}
                 >
-                  {tab}()
+                  {tab.label}
                 </button>
               ))}
             </div>
 
             <button
               onClick={copyCode}
-              className="text-zinc-400 hover:text-zinc-200 text-xs flex items-center gap-1 font-mono transition-colors"
+              className="text-[#57534e] hover:text-[#1c1917] text-xs flex items-center gap-1 font-serif transition-colors py-1 px-2"
+              title="Copy snippet"
             >
-              {copied ? <Check className="w-3.5 h-3.5 text-zinc-200" /> : <Copy className="w-3.5 h-3.5" />}
+              {copied ? <Check className="w-3.5 h-3.5 text-[#1c1917]" /> : <Copy className="w-3.5 h-3.5" />}
               <span>{copied ? 'Copied' : 'Copy'}</span>
             </button>
           </div>
 
           {/* Snippet Display */}
-          <div className="p-5 font-mono text-xs leading-relaxed overflow-x-auto text-zinc-300 bg-zinc-950/80">
-            <pre>{SNIPPETS[activeTab]}</pre>
+          <div className="p-5 font-mono text-xs leading-relaxed overflow-x-auto text-[#1c1917] bg-[#fbf9f6]">
+            <pre className="text-[12px]">{SNIPPETS[activeTab]}</pre>
+          </div>
+
+          {/* Footnote */}
+          <div className="px-4 py-2 border-t border-[#e7e5e4] bg-[#f0eae1] flex flex-wrap items-center justify-between text-[11px] font-serif text-[#78716c]">
+            <span>PACKAGE: recalldb v0.1.0 &bull; Single-file embedded storage</span>
+            <span className="text-[#1c1917]">Supports: Ollama minicpm-v4.6:latest &bull; OpenAI &bull; Claude &bull; LangChain</span>
           </div>
         </div>
       </div>

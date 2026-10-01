@@ -1,21 +1,20 @@
 """
-Multi-factor hybrid ranking engine for RecallDB.
-Fuses semantic embeddings, FTS5 BM25, bitemporal state, importance,
-and generates explainability traces with batched candidate hydration.
+Hybrid retrieval engine combining dense vectors, BM25, and bitemporal point-in-time scoring.
+Enforces SQL temporal pre-filtering to eliminate recall truncation under historical churn.
 """
 
 from typing import List, Optional, Dict, Set
+from dataclasses import dataclass
+from recalldb.core.memory import MemoryRecord, ExplanationTrace, RetrievalResult
 from recalldb.storage.db import Database
 from recalldb.retrieval.lexical import LexicalRetriever
 from recalldb.retrieval.semantic import SemanticRetriever
 from recalldb.retrieval.temporal import TemporalEvaluator
-from recalldb.core.memory import MemoryRecord, RetrievalResult, ExplanationTrace
 
 
 class HybridRetriever:
     """
-    Unified candidate generation, bitemporal filtering, and multi-factor ranking.
-    Uses batched SQL retrieval to eliminate N+1 queries.
+    Fuses dense vector similarity, BM25 lexical precision, and bitemporal interval filters.
     """
 
     def __init__(
@@ -34,6 +33,7 @@ class HybridRetriever:
         self.lexical = lexical
         self.semantic = semantic
         self.temporal = temporal
+
         self.alpha = alpha_semantic
         self.beta = beta_lexical
         self.gamma = gamma_temporal
@@ -48,33 +48,70 @@ class HybridRetriever:
         filter_types: Optional[List[str]] = None,
         min_confidence: float = 0.0,
         include_invalid: bool = False,
-        explain: bool = False
+        explain: bool = False,
+        tenant_id: Optional[str] = None,
+        user_id: Optional[str] = None,
+        thread_id: Optional[str] = None
     ) -> List[RetrievalResult]:
         """
         Execute full hybrid retrieval pipeline:
-        1. Query dense semantic vectors
-        2. Query lexical BM25
-        3. Merge candidate pool
-        4. Batch hydrate candidate records (single SQL IN query)
-        5. Apply bitemporal filtering
-        6. Score candidates with multi-factor formula
-        7. Generate explanation trace
+        1. Validate temporal format & execute SQL temporal pre-filtering (eliminates truncation)
+        2. Query dense semantic vectors within valid scope
+        3. Query lexical BM25 within valid scope
+        4. Merge and score candidate pool with multi-factor formula
         """
-        # Step 1 & 2: Candidates
-        semantic_matches = dict(self.semantic.search(query, top_k=top_k * 3))
-        lexical_matches = dict(self.lexical.search(query, top_k=top_k * 3))
+        # Validate as_of format early
+        if as_of is not None:
+            # Raises ValueError if invalid ISO format
+            self.temporal.is_valid_as_of(
+                MemoryRecord(id="dummy", content="dummy", valid_from="2000-01-01T00:00:00Z"),
+                as_of
+            )
+
+        # Step 1: Pre-filtering
+        allowed_ids: Optional[Set[str]] = None
+        if not include_invalid:
+            allowed_ids = self.db.get_valid_ids(
+                as_of=as_of,
+                tenant_id=tenant_id,
+                user_id=user_id,
+                thread_id=thread_id
+            )
+            if not allowed_ids:
+                return []
+
+        # Candidate limit: dynamically scaled to guarantee high recall
+        candidate_k = max(top_k * 5, 50)
+
+        # Step 2: Candidates retrieval with allowed_id and scope pre-filtering
+        semantic_matches = dict(self.semantic.search(
+            query,
+            top_k=candidate_k,
+            allowed_ids=allowed_ids,
+            tenant_id=tenant_id,
+            user_id=user_id,
+            thread_id=thread_id
+        ))
+        lexical_matches = dict(self.lexical.search(
+            query,
+            top_k=candidate_k,
+            allowed_ids=allowed_ids,
+            tenant_id=tenant_id,
+            user_id=user_id,
+            thread_id=thread_id
+        ))
 
         candidate_ids: Set[str] = set(semantic_matches.keys()).union(set(lexical_matches.keys()))
 
-        # If both empty, fallback to bounded recent memories (never fetch all)
-        if not candidate_ids:
+        if not candidate_ids and allowed_ids:
+            # Fallback to recent valid memories within scope
             recent_recs = self.db.get_recent(limit=top_k * 2)
-            candidate_ids = {r.id for r in recent_recs}
+            candidate_ids = {r.id for r in recent_recs if r.id in allowed_ids}
 
         if not candidate_ids:
             return []
 
-        # Step 4: Batch hydrate all candidate records in a single query
+        # Step 3: Batch hydrate candidate records
         record_map = self.db.get_many(list(candidate_ids))
 
         scored_results: List[RetrievalResult] = []
@@ -92,10 +129,9 @@ class HybridRetriever:
             if filter_types and record.memory_type.value not in filter_types:
                 continue
 
-            # Temporal validity check (raises ValueError if as_of is invalid format)
+            # Double-check temporal validity
             is_valid = self.temporal.is_valid_as_of(record, as_of)
             if not include_invalid and not is_valid:
-                # Discard temporally invalid records (e.g. superseded past states)
                 continue
 
             vec_score = semantic_matches.get(mem_id, 0.0)
@@ -138,7 +174,7 @@ class HybridRetriever:
                     as_of=as_of,
                     source=record.source,
                     confidence=record.confidence,
-                    decision_rationale=", ".join(rationale_parts) or "candidate match"
+                    decision_rationale=" | ".join(rationale_parts)
                 )
 
             scored_results.append(RetrievalResult(
@@ -147,6 +183,6 @@ class HybridRetriever:
                 explanation=trace
             ))
 
-        # Sort descending by final score
+        # Sort descending by score
         scored_results.sort(key=lambda x: x.score, reverse=True)
         return scored_results[:top_k]

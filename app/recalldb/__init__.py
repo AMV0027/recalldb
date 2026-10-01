@@ -76,6 +76,10 @@ class RecallDB:
         importance: float = 0.5,
         supersedes_id: Optional[str] = None,
         metadata: Optional[Dict[str, Any]] = None,
+        tenant_id: str = "default",
+        user_id: str = "default",
+        agent_id: str = "default",
+        thread_id: str = "default",
     ) -> MemoryRecord:
         """
         Ingest a new memory into persistent storage with automated embedding
@@ -110,6 +114,10 @@ class RecallDB:
             supersedes_id=supersedes_id,
             entities=entities or [],
             metadata=metadata or {},
+            tenant_id=tenant_id,
+            user_id=user_id,
+            agent_id=agent_id,
+            thread_id=thread_id,
             embedding=emb,
         )
 
@@ -123,6 +131,52 @@ class RecallDB:
             return updated_record
 
         return self.db.insert(record)
+    def remember_batch(self, items: List[Dict[str, Any]]) -> List[MemoryRecord]:
+        """
+        Ingest a batch of memories in a single atomic transaction.
+        Pre-computes embeddings and writes all records in one transaction.
+        """
+        if not items:
+            return []
+
+        contents = [item["content"] for item in items]
+        for c in contents:
+            if not c or not isinstance(c, str) or not c.strip():
+                raise ValueError("All batch items must contain non-empty string content.")
+
+        # Batch embed
+        embeddings = self.embedding.embed_batch(contents)
+
+        records = []
+        for item, emb in zip(items, embeddings):
+            c = item["content"]
+            mtype = item.get("memory_type", MemoryType.FACT)
+            if isinstance(mtype, str):
+                mtype = MemoryType(mtype.lower())
+
+            v_from = item.get("valid_from") or item.get("event_time") or utc_now_iso()
+            r = MemoryRecord(
+                content=c,
+                event_time=item.get("event_time"),
+                valid_from=v_from,
+                valid_until=item.get("valid_until"),
+                memory_type=mtype,
+                entities=item.get("entities") or [],
+                source=item.get("source", "agent:interaction"),
+                confidence=float(item.get("confidence", 1.0)),
+                importance=float(item.get("importance", 0.5)),
+                supersedes_id=item.get("supersedes_id"),
+                metadata=item.get("metadata") or {},
+                tenant_id=item.get("tenant_id", "default"),
+                user_id=item.get("user_id", "default"),
+                agent_id=item.get("agent_id", "default"),
+                thread_id=item.get("thread_id", "default"),
+                embedding=emb,
+            )
+            records.append(r)
+
+        return self.db.insert_batch(records)
+
 
     def recall(
         self,
@@ -132,11 +186,14 @@ class RecallDB:
         filter_types: Optional[List[str]] = None,
         min_confidence: float = 0.0,
         include_invalid: bool = False,
-        explain: bool = False
+        explain: bool = False,
+        tenant_id: Optional[str] = None,
+        user_id: Optional[str] = None,
+        thread_id: Optional[str] = None
     ) -> List[RetrievalResult]:
         """
         Retrieve relevant memories using multi-factor hybrid ranking
-        with point-in-time temporal evaluation.
+        with point-in-time temporal evaluation and multi-tenancy scoping.
         """
         return self.hybrid.search(
             query=query,
@@ -146,6 +203,36 @@ class RecallDB:
             min_confidence=min_confidence,
             include_invalid=include_invalid,
             explain=explain,
+            tenant_id=tenant_id,
+            user_id=user_id,
+            thread_id=thread_id,
+        )
+
+    def search(
+        self,
+        query: str,
+        top_k: int = 10,
+        as_of: Optional[str] = None,
+        filter_types: Optional[List[str]] = None,
+        min_confidence: float = 0.0,
+        include_invalid: bool = False,
+        explain: bool = False,
+        tenant_id: Optional[str] = None,
+        user_id: Optional[str] = None,
+        thread_id: Optional[str] = None
+    ) -> List[RetrievalResult]:
+        """Alias for recall() with identical signature and hybrid ranking semantics."""
+        return self.recall(
+            query=query,
+            k=top_k,
+            as_of=as_of,
+            filter_types=filter_types,
+            min_confidence=min_confidence,
+            include_invalid=include_invalid,
+            explain=explain,
+            tenant_id=tenant_id,
+            user_id=user_id,
+            thread_id=thread_id,
         )
 
     def update(
@@ -200,6 +287,23 @@ class RecallDB:
             effective_time=new_record.valid_from
         )
         return updated_new
+
+    def supersede(
+        self,
+        existing_id: str,
+        new_content: str,
+        event_time: Optional[str] = None,
+        effective_time: Optional[str] = None,
+        source: Optional[str] = None
+    ) -> MemoryRecord:
+        """Explicit supersession helper transitioning existing memory to SUPERSEDED."""
+        return self.update(
+            memory_id=existing_id,
+            content=new_content,
+            event_time=effective_time or event_time,
+            supersedes=True,
+            source=source
+        )
 
     def explain(self, memory_id: str) -> str:
         """Generate provenance and explainability report for a memory."""

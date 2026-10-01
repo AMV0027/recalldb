@@ -1,5 +1,5 @@
 -- RecallDB Relational & Full-Text Schema
--- Enforces WAL Mode and Bitemporal Consistency
+-- Enforces WAL Mode, Bitemporal Consistency, and Enterprise Multi-Tenancy Scoping
 
 CREATE TABLE IF NOT EXISTS memories (
     id TEXT PRIMARY KEY,
@@ -17,6 +17,10 @@ CREATE TABLE IF NOT EXISTS memories (
     superseded_by_id TEXT,
     entities TEXT,
     metadata TEXT,
+    tenant_id TEXT NOT NULL DEFAULT 'default',
+    user_id TEXT NOT NULL DEFAULT 'default',
+    agent_id TEXT NOT NULL DEFAULT 'default',
+    thread_id TEXT NOT NULL DEFAULT 'default',
     embedding BLOB
 );
 
@@ -45,6 +49,8 @@ CREATE INDEX IF NOT EXISTS idx_memories_recorded ON memories(recorded_at);
 CREATE INDEX IF NOT EXISTS idx_memories_state ON memories(lifecycle_state);
 CREATE INDEX IF NOT EXISTS idx_memories_type ON memories(memory_type);
 CREATE INDEX IF NOT EXISTS idx_memories_supersession ON memories(supersedes_id, superseded_by_id);
+CREATE INDEX IF NOT EXISTS idx_memories_scope ON memories(tenant_id, user_id, thread_id);
+CREATE INDEX IF NOT EXISTS idx_memories_scope_state ON memories(tenant_id, user_id, lifecycle_state);
 
 -- FTS5 Full-Text Search Virtual Table
 CREATE VIRTUAL TABLE IF NOT EXISTS memories_fts USING fts5(

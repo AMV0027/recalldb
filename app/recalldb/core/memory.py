@@ -67,6 +67,12 @@ class MemoryRecord:
     entities: List[str] = field(default_factory=list)
     metadata: Dict[str, Any] = field(default_factory=dict)
     
+    # Scope & Multi-tenancy
+    tenant_id: str = "default"
+    user_id: str = "default"
+    agent_id: str = "default"
+    thread_id: str = "default"
+
     # Vector embedding (float32 array)
     embedding: Optional[List[float]] = None
 
@@ -88,6 +94,10 @@ class MemoryRecord:
             "superseded_by_id": self.superseded_by_id,
             "entities": self.entities,
             "metadata": self.metadata,
+            "tenant_id": self.tenant_id,
+            "user_id": self.user_id,
+            "agent_id": self.agent_id,
+            "thread_id": self.thread_id,
         }
 
     @classmethod
@@ -127,6 +137,10 @@ class MemoryRecord:
             superseded_by_id=row.get("superseded_by_id"),
             entities=entities,
             metadata=metadata,
+            tenant_id=row.get("tenant_id", "default"),
+            user_id=row.get("user_id", "default"),
+            agent_id=row.get("agent_id", "default"),
+            thread_id=row.get("thread_id", "default"),
         )
 
 

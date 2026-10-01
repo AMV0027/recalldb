@@ -10,7 +10,7 @@ import json
 import struct
 import time
 from pathlib import Path
-from typing import List, Optional, Tuple, Dict, Any, Callable
+from typing import Set, List, Optional, Tuple, Dict, Any, Callable
 from recalldb.core.memory import MemoryRecord, MemoryLifecycleState, utc_now_iso
 from recalldb.core.lifecycle import MemoryLifecycleManager
 
@@ -53,6 +53,7 @@ class Database:
 
     def __init__(self, db_path: str = "memory.db"):
         self.db_path = str(Path(db_path).resolve())
+        self._write_version: int = 0
         Path(self.db_path).parent.mkdir(parents=True, exist_ok=True)
         self._init_db()
 
@@ -69,14 +70,38 @@ class Database:
         conn.execute("PRAGMA cache_size = -64000;")   # 64MB cache
         return conn
 
+    def get_data_version(self) -> int:
+        """Return combined SQLite PRAGMA data_version and internal write version."""
+        conn = self.get_connection()
+        try:
+            cur = conn.execute("PRAGMA data_version;")
+            row = cur.fetchone()
+            pragma_version = int(row[0]) if row else 0
+        finally:
+            conn.close()
+        return pragma_version + self._write_version
+
     def _init_db(self) -> None:
-        """Apply schema.sql DDL to initialize database tables and indices."""
+        """Apply schema.sql DDL and run automatic backward-compatible migrations."""
         schema_path = Path(__file__).parent / "schema.sql"
         with open(schema_path, "r", encoding="utf-8") as f:
             ddl = f.read()
 
         with self.get_connection() as conn:
             conn.executescript(ddl)
+            # Automatic schema migration check for existing databases
+            cur = conn.execute("PRAGMA table_info(memories);")
+            cols = {row["name"] for row in cur.fetchall()}
+            if "tenant_id" not in cols:
+                conn.execute("ALTER TABLE memories ADD COLUMN tenant_id TEXT NOT NULL DEFAULT 'default';")
+            if "user_id" not in cols:
+                conn.execute("ALTER TABLE memories ADD COLUMN user_id TEXT NOT NULL DEFAULT 'default';")
+            if "agent_id" not in cols:
+                conn.execute("ALTER TABLE memories ADD COLUMN agent_id TEXT NOT NULL DEFAULT 'default';")
+            if "thread_id" not in cols:
+                conn.execute("ALTER TABLE memories ADD COLUMN thread_id TEXT NOT NULL DEFAULT 'default';")
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_memories_scope ON memories(tenant_id, user_id, thread_id);")
+            conn.execute("CREATE INDEX IF NOT EXISTS idx_memories_scope_state ON memories(tenant_id, user_id, lifecycle_state);")
             conn.commit()
 
     @retry_on_lock()
@@ -92,8 +117,8 @@ class Database:
             event_time, valid_from, valid_until, recorded_at,
             source, confidence, importance,
             supersedes_id, superseded_by_id,
-            entities, metadata, embedding
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            entities, metadata, tenant_id, user_id, agent_id, thread_id, embedding
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """
 
         with self.get_connection() as conn:
@@ -113,10 +138,62 @@ class Database:
                 record.superseded_by_id,
                 entities_json,
                 metadata_json,
+                record.tenant_id,
+                record.user_id,
+                record.agent_id,
+                record.thread_id,
                 blob
             ))
             conn.commit()
+        self._write_version += 1
         return record
+
+    @retry_on_lock()
+    def insert_batch(self, records: List[MemoryRecord]) -> List[MemoryRecord]:
+        """Batch insert multiple MemoryRecords within a single atomic SQLite transaction."""
+        if not records:
+            return []
+        sql = """
+        INSERT INTO memories (
+            id, content, memory_type, lifecycle_state,
+            event_time, valid_from, valid_until, recorded_at,
+            source, confidence, importance,
+            supersedes_id, superseded_by_id,
+            entities, metadata, tenant_id, user_id, agent_id, thread_id, embedding
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """
+        rows = []
+        for r in records:
+            blob = embedding_to_blob(r.embedding)
+            entities_json = json.dumps(r.entities) if r.entities else "[]"
+            metadata_json = json.dumps(r.metadata) if r.metadata else "{}"
+            rows.append((
+                r.id,
+                r.content,
+                r.memory_type.value if hasattr(r.memory_type, "value") else str(r.memory_type),
+                r.lifecycle_state.value if hasattr(r.lifecycle_state, "value") else str(r.lifecycle_state),
+                r.event_time,
+                r.valid_from or r.event_time or r.recorded_at,
+                r.valid_until,
+                r.recorded_at,
+                r.source,
+                r.confidence,
+                r.importance,
+                r.supersedes_id,
+                r.superseded_by_id,
+                entities_json,
+                metadata_json,
+                r.tenant_id,
+                r.user_id,
+                r.agent_id,
+                r.thread_id,
+                blob
+            ))
+        with self.get_connection() as conn:
+            conn.executemany(sql, rows)
+            conn.commit()
+        self._write_version += 1
+        return records
 
     def get(self, memory_id: str) -> Optional[MemoryRecord]:
         """Retrieve a MemoryRecord by its ID."""
@@ -192,6 +269,10 @@ class Database:
             superseded_by_id = ?,
             entities = ?,
             metadata = ?,
+            tenant_id = ?,
+            user_id = ?,
+            agent_id = ?,
+            thread_id = ?,
             embedding = ?
         WHERE id = ?
         """
@@ -211,6 +292,10 @@ class Database:
                 record.superseded_by_id,
                 entities_json,
                 metadata_json,
+                record.tenant_id,
+                record.user_id,
+                record.agent_id,
+                record.thread_id,
                 blob,
                 record.id
             ))
@@ -309,3 +394,48 @@ class Database:
                     r.embedding = blob_to_embedding(row["embedding"])
                 records.append(r)
         return records
+
+    def get_valid_ids(
+        self,
+        as_of: Optional[str] = None,
+        tenant_id: Optional[str] = None,
+        user_id: Optional[str] = None,
+        thread_id: Optional[str] = None
+    ) -> Set[str]:
+        """
+        Retrieve set of memory IDs that satisfy bitemporal validity and multi-tenancy constraints.
+        Enforces SQL pre-filtering before candidate hydration.
+        """
+        clauses = ["lifecycle_state != 'archived'"]
+        params = []
+
+        if tenant_id:
+            clauses.append("tenant_id = ?")
+            params.append(tenant_id)
+        if user_id:
+            clauses.append("user_id = ?")
+            params.append(user_id)
+        if thread_id:
+            clauses.append("thread_id = ?")
+            params.append(thread_id)
+
+        if as_of is None:
+            # Live state query: active records whose valid_until is null or future
+            clauses.append("lifecycle_state = 'active'")
+            clauses.append("(valid_until IS NULL OR valid_until > datetime('now'))")
+        else:
+            # Historical point-in-time slicing
+            clauses.append("(valid_from IS NULL OR valid_from <= ?)")
+            params.append(as_of)
+            clauses.append("(valid_until IS NULL OR valid_until > ?)")
+            params.append(as_of)
+
+        where_sql = " AND ".join(clauses)
+        sql = f"SELECT id FROM memories WHERE {where_sql}"
+
+        conn = self.get_connection()
+        try:
+            cur = conn.execute(sql, params)
+            return {row["id"] for row in cur.fetchall()}
+        finally:
+            conn.close()

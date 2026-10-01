@@ -19,40 +19,30 @@ const STYLES = {
     bg: '#ffffff',
     border: '#d1d5db',
     tag: 'INPUT STREAM',
-    badgeBg: '#f0fdf4',
-    badgeText: '#166534',
   },
   lexical: {
     accent: '#0f766e',
     bg: '#ffffff',
     border: '#d1d5db',
     tag: 'CHANNEL A · LEXICAL',
-    badgeBg: '#f0fdfa',
-    badgeText: '#0f766e',
   },
   dense: {
     accent: '#334155',
     bg: '#ffffff',
     border: '#d1d5db',
     tag: 'CHANNEL B · EMBEDDINGS',
-    badgeBg: '#f8fafc',
-    badgeText: '#334155',
   },
   gate: {
     accent: '#111827',
     bg: '#ffffff',
     border: '#111827',
     tag: 'STATE MACHINE',
-    badgeBg: '#111827',
-    badgeText: '#ffffff',
   },
   output: {
     accent: '#166534',
     bg: '#ffffff',
     border: '#166534',
     tag: 'DISPATCH GATEWAY',
-    badgeBg: '#166534',
-    badgeText: '#ffffff',
   }
 };
 
@@ -66,8 +56,8 @@ function NodeShell({ type, tag, title, subtitle, children, handles = 'both', isD
         background: '#ffffff',
         border: `1px solid ${cfg.border}`,
         borderRadius: 8,
-        minWidth: 230,
-        maxWidth: 250,
+        minWidth: 220,
+        maxWidth: 240,
         boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
         fontFamily: 'var(--font-sans)',
         overflow: 'hidden',
@@ -106,7 +96,7 @@ function NodeShell({ type, tag, title, subtitle, children, handles = 'both', isD
       <div
         style={{
           borderBottom: '1px solid #f3f4f6',
-          padding: '8px 12px 7px',
+          padding: '7px 12px',
           background: isDark ? '#111827' : '#fafafa',
           display: 'flex',
           justifyContent: 'space-between',
@@ -137,7 +127,7 @@ function NodeShell({ type, tag, title, subtitle, children, handles = 'both', isD
       </div>
 
       {/* Title block */}
-      <div style={{ padding: '10px 12px 10px' }}>
+      <div style={{ padding: '9px 12px 10px' }}>
         <div
           style={{
             fontSize: 13,
@@ -168,7 +158,7 @@ function InputNode() {
       type="input"
       tag="Input Query"
       title="Retrieval Request"
-      subtitle="Context query + temporal predicate"
+      subtitle="Query + temporal predicate"
       handles="source"
     >
       <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px solid #f3f4f6' }}>
@@ -195,7 +185,7 @@ function LexicalNode() {
     >
       <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px solid #f3f4f6' }}>
         <div style={{ fontSize: 10, color: '#4b5563', lineHeight: 1.5 }}>
-          Exact UUIDs, function signatures, compiler logs & error traces
+          Exact UUIDs, function signatures & compiler logs
         </div>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#0f766e', background: '#f0fdfa', padding: '4px 6px', borderRadius: 4, marginTop: 6 }}>
           BM25(query, tokens) → Score_lex
@@ -216,7 +206,7 @@ function DenseNode() {
     >
       <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px solid #f3f4f6' }}>
         <div style={{ fontSize: 10, color: '#4b5563', lineHeight: 1.5 }}>
-          Latent semantic similarity & intent preservation
+          Latent semantic similarity & intent capture
         </div>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#334155', background: '#f8fafc', padding: '4px 6px', borderRadius: 4, marginTop: 6 }}>
           cos_sim(v_q, v_d) → Score_dense
@@ -240,7 +230,7 @@ function GatekeeperNode() {
           valid_from ≤ t &lt; valid_until
         </div>
         <div style={{ fontSize: 10, color: '#4b5563', marginTop: 6, lineHeight: 1.4 }}>
-          Supersession DAG purges superseded records before rank blending
+          Supersession DAG purges superseded records
         </div>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#166534', marginTop: 6, fontWeight: 500 }}>
           Score = α·Dense + β·BM25 + γ·Temp
@@ -361,10 +351,10 @@ const edgeTypes = {
 
 const initialNodes = [
   { id: 'input',      type: 'inputNode',      position: { x: 0,   y: 155 }, data: {} },
-  { id: 'lexical',    type: 'lexicalNode',    position: { x: 310, y: 30  }, data: {} },
-  { id: 'dense',      type: 'denseNode',      position: { x: 310, y: 280 }, data: {} },
-  { id: 'gatekeeper', type: 'gatekeeperNode', position: { x: 630, y: 135 }, data: {} },
-  { id: 'output',     type: 'outputNode',     position: { x: 960, y: 165 }, data: {} },
+  { id: 'lexical',    type: 'lexicalNode',    position: { x: 300, y: 30  }, data: {} },
+  { id: 'dense',      type: 'denseNode',      position: { x: 300, y: 280 }, data: {} },
+  { id: 'gatekeeper', type: 'gatekeeperNode', position: { x: 610, y: 135 }, data: {} },
+  { id: 'output',     type: 'outputNode',     position: { x: 930, y: 165 }, data: {} },
 ];
 
 const initialEdges = [
@@ -381,42 +371,23 @@ export default function ArchitectureDiagramSvg() {
 
   return (
     <div style={{ fontFamily: 'var(--font-sans)' }}>
-      {/* Schematic Header Bar */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '10px 0',
-          borderBottom: '1px solid #e5e7eb',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#166534' }} />
-          <span style={{ fontSize: 11, fontWeight: 500, letterSpacing: '0.06em', color: '#6b7280', textTransform: 'uppercase', fontFamily: 'var(--font-mono)' }}>
+      {/* Schematic Header Bar (Responsive) */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 py-2.5 border-b border-[#e5e7eb]">
+        <div className="flex items-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#166534] flex-shrink-0" />
+          <span className="text-[11px] font-medium tracking-wide text-[#6b7280] uppercase font-mono">
             Figure 1 · Dual-Channel Bitemporal Pipeline Architecture
           </span>
         </div>
-        <div style={{ display: 'flex', gap: 16, fontSize: 11, color: '#6b7280', fontFamily: 'var(--font-mono)' }}>
-          <span>Latency: <strong style={{ color: '#166534' }}>≤11.47ms</strong></span>
-          <span>Daemon: <strong style={{ color: '#111827' }}>Zero</strong></span>
-          <span>Errors: <strong style={{ color: '#166534' }}>0.0%</strong></span>
+        <div className="flex items-center gap-3 sm:gap-4 text-[11px] text-[#6b7280] font-mono">
+          <span>Latency: <strong className="text-[#166534]">≤11.47ms</strong></span>
+          <span>Daemon: <strong className="text-[#111827]">Zero</strong></span>
+          <span>Errors: <strong className="text-[#166534]">0.0%</strong></span>
         </div>
       </div>
 
       {/* React Flow Canvas */}
-      <div
-        style={{
-          width: '100%',
-          height: 460,
-          background: '#fafafa',
-          border: '1px solid #e5e7eb',
-          borderTop: 'none',
-          borderRadius: '0 0 8px 8px',
-          overflow: 'hidden',
-          position: 'relative',
-        }}
-      >
+      <div className="w-full h-[380px] sm:h-[460px] bg-[#fafafa] border border-[#e5e7eb] border-t-0 rounded-b-lg overflow-hidden relative">
         <svg style={{ width: 0, height: 0, position: 'absolute' }}>
           <defs>
             <marker id="arrow-forest" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
@@ -433,8 +404,8 @@ export default function ArchitectureDiagramSvg() {
           nodeTypes={nodeTypes}
           edgeTypes={edgeTypes}
           fitView
-          fitViewOptions={{ padding: 0.2, minZoom: 0.65, maxZoom: 1.1 }}
-          minZoom={0.4}
+          fitViewOptions={{ padding: 0.15, minZoom: 0.4, maxZoom: 1.0 }}
+          minZoom={0.3}
           maxZoom={1.5}
           panOnDrag
           zoomOnScroll={false}
@@ -443,6 +414,9 @@ export default function ArchitectureDiagramSvg() {
         >
           <Background variant="dots" gap={18} size={1} color="#e5e7eb" />
         </ReactFlow>
+      </div>
+      <div className="text-[10px] text-[#9ca3af] font-mono mt-1.5 sm:hidden text-right">
+        Drag or pinch to inspect nodes →
       </div>
     </div>
   );

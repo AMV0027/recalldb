@@ -43,40 +43,40 @@ export default function BenchmarkVisualChart() {
   const [viewMode, setViewMode] = useState('accuracy');
 
   return (
-    <div className="mb-8 font-serif">
-      {/* Tidy Newspaper Chart Selector */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#e7e5e4] pb-2 mb-4">
-        <span className="text-xs uppercase tracking-wider text-[#78716c]">
-          Figure 1 &bull; Visual Comparative Metrics
+    <div className="mb-8" style={{ fontFamily: 'var(--font-sans)' }}>
+      {/* Selector Tabs */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-[#e5e7eb] pb-3 mb-5">
+        <span className="text-[11px] uppercase tracking-wider text-[#6b7280] font-mono font-medium">
+          Figure 2 · Empirical Comparative Metrics
         </span>
 
-        <div className="flex items-center gap-1 text-xs">
+        <div className="flex flex-wrap items-center gap-1 text-[12px]">
           <button
             onClick={() => setViewMode('accuracy')}
-            className={`px-2.5 py-1 transition-colors ${
+            className={`px-3 py-1.5 rounded transition-colors ${
               viewMode === 'accuracy'
-                ? 'bg-[#1c1917] text-[#faf8f5] font-medium'
-                : 'text-[#78716c] hover:text-[#1c1917]'
+                ? 'bg-[#166534] text-white font-medium'
+                : 'text-[#4b5563] hover:text-[#111] hover:bg-[#f3f4f6]'
             }`}
           >
             Recall & Accuracy
           </button>
           <button
             onClick={() => setViewMode('failure')}
-            className={`px-2.5 py-1 transition-colors ${
+            className={`px-3 py-1.5 rounded transition-colors ${
               viewMode === 'failure'
-                ? 'bg-[#1c1917] text-[#faf8f5] font-medium'
-                : 'text-[#78716c] hover:text-[#1c1917]'
+                ? 'bg-[#166534] text-white font-medium'
+                : 'text-[#4b5563] hover:text-[#111] hover:bg-[#f3f4f6]'
             }`}
           >
             Invalidation Errors (E_temp)
           </button>
           <button
             onClick={() => setViewMode('latency')}
-            className={`px-2.5 py-1 transition-colors ${
+            className={`px-3 py-1.5 rounded transition-colors ${
               viewMode === 'latency'
-                ? 'bg-[#1c1917] text-[#faf8f5] font-medium'
-                : 'text-[#78716c] hover:text-[#1c1917]'
+                ? 'bg-[#166534] text-white font-medium'
+                : 'text-[#4b5563] hover:text-[#111] hover:bg-[#f3f4f6]'
             }`}
           >
             Latency (ms)
@@ -84,27 +84,29 @@ export default function BenchmarkVisualChart() {
         </div>
       </div>
 
-      {/* Visual Bars on Clean Newsprint Background */}
-      <div className="space-y-3">
+      {/* Visual Bars with Responsive Stacking */}
+      <div className="space-y-4">
         {viewMode === 'accuracy' &&
           METRICS_DATA.map((item, idx) => {
             const recallPercent = Math.round(item.recall1 * 100);
             return (
-              <div key={idx} className="flex items-center gap-4 text-xs">
-                <span className={`w-48 truncate ${item.isPrimary ? 'font-semibold text-[#1c1917]' : 'text-[#57534e]'}`}>
+              <div key={idx} className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-[13px]">
+                <span className={`w-full sm:w-56 truncate ${item.isPrimary ? 'font-semibold text-[#166534]' : 'text-[#4b5563]'}`}>
                   {item.name}
                 </span>
-                <div className="flex-1 bg-[#f0eae1] h-3.5 overflow-hidden">
-                  <div
-                    className={`h-full transition-all duration-500 ${
-                      item.isPrimary ? 'bg-[#1c1917]' : 'bg-[#a8a29e]'
-                    }`}
-                    style={{ width: `${Math.max(recallPercent, 2)}%` }}
-                  />
+                <div className="flex items-center gap-3 flex-1">
+                  <div className="flex-1 bg-[#f3f4f6] h-4 rounded overflow-hidden">
+                    <div
+                      className={`h-full transition-all duration-500 rounded ${
+                        item.isPrimary ? 'bg-[#166534]' : 'bg-[#9ca3af]'
+                      }`}
+                      style={{ width: `${Math.max(recallPercent, 2)}%` }}
+                    />
+                  </div>
+                  <span className="w-12 text-right font-mono text-xs font-semibold text-[#111]">
+                    {recallPercent}%
+                  </span>
                 </div>
-                <span className="w-16 text-right font-mono text-xs text-[#1c1917]">
-                  {recallPercent}%
-                </span>
               </div>
             );
           })}
@@ -113,21 +115,23 @@ export default function BenchmarkVisualChart() {
           METRICS_DATA.map((item, idx) => {
             const failurePercent = Math.round(item.etemp * 100);
             return (
-              <div key={idx} className="flex items-center gap-4 text-xs">
-                <span className={`w-48 truncate ${item.isPrimary ? 'font-semibold text-[#1c1917]' : 'text-[#57534e]'}`}>
+              <div key={idx} className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-[13px]">
+                <span className={`w-full sm:w-56 truncate ${item.isPrimary ? 'font-semibold text-[#166534]' : 'text-[#4b5563]'}`}>
                   {item.name}
                 </span>
-                <div className="flex-1 bg-[#f0eae1] h-3.5 overflow-hidden">
-                  <div
-                    className={`h-full transition-all duration-500 ${
-                      item.isPrimary ? 'bg-[#1c1917]' : 'bg-[#991b1b]'
-                    }`}
-                    style={{ width: `${Math.max(failurePercent, item.isPrimary ? 0 : 3)}%` }}
-                  />
+                <div className="flex items-center gap-3 flex-1">
+                  <div className="flex-1 bg-[#f3f4f6] h-4 rounded overflow-hidden">
+                    <div
+                      className={`h-full transition-all duration-500 rounded ${
+                        item.isPrimary ? 'bg-[#166534]' : 'bg-[#dc2626]'
+                      }`}
+                      style={{ width: `${Math.max(failurePercent, item.isPrimary ? 0 : 3)}%` }}
+                    />
+                  </div>
+                  <span className={`w-12 text-right font-mono text-xs font-semibold ${item.isPrimary ? 'text-[#166534]' : 'text-[#dc2626]'}`}>
+                    {item.isPrimary ? '0.0%' : `${failurePercent}%`}
+                  </span>
                 </div>
-                <span className="w-16 text-right font-mono text-xs text-[#1c1917]">
-                  {item.isPrimary ? '0.0%' : `${failurePercent}%`}
-                </span>
               </div>
             );
           })}
@@ -137,21 +141,23 @@ export default function BenchmarkVisualChart() {
             const maxLatency = 25;
             const widthPercent = Math.round((item.latency / maxLatency) * 100);
             return (
-              <div key={idx} className="flex items-center gap-4 text-xs">
-                <span className={`w-48 truncate ${item.isPrimary ? 'font-semibold text-[#1c1917]' : 'text-[#57534e]'}`}>
+              <div key={idx} className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-[13px]">
+                <span className={`w-full sm:w-56 truncate ${item.isPrimary ? 'font-semibold text-[#166534]' : 'text-[#4b5563]'}`}>
                   {item.name}
                 </span>
-                <div className="flex-1 bg-[#f0eae1] h-3.5 overflow-hidden">
-                  <div
-                    className={`h-full transition-all duration-500 ${
-                      item.isPrimary ? 'bg-[#1c1917]' : 'bg-[#a8a29e]'
-                    }`}
-                    style={{ width: `${widthPercent}%` }}
-                  />
+                <div className="flex items-center gap-3 flex-1">
+                  <div className="flex-1 bg-[#f3f4f6] h-4 rounded overflow-hidden">
+                    <div
+                      className={`h-full transition-all duration-500 rounded ${
+                        item.isPrimary ? 'bg-[#166534]' : 'bg-[#9ca3af]'
+                      }`}
+                      style={{ width: `${widthPercent}%` }}
+                    />
+                  </div>
+                  <span className="w-16 text-right font-mono text-xs font-semibold text-[#111]">
+                    {item.latency} ms
+                  </span>
                 </div>
-                <span className="w-16 text-right font-mono text-xs text-[#1c1917]">
-                  {item.latency} ms
-                </span>
               </div>
             );
           })}

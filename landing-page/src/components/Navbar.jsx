@@ -5,21 +5,32 @@ export default function Navbar() {
   return (
     <header className="bg-white border-b border-[#e4e4e4] sticky top-0 z-50">
       <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
-        {/* Logo */}
-        <a href="#lead" className="flex items-center gap-2 text-[#111]">
-          <span className="font-mono text-[11px] tracking-widest uppercase text-[#666] select-none">[ DB ]</span>
-          <span className="text-[14px] tracking-tight" style={{ fontFamily: 'var(--font-display)', fontWeight: 500 }}>
+
+        {/* Logo: ant icon + RecallDB name */}
+        <a href="#lead" className="flex items-center gap-2.5 text-[#111] select-none">
+          <img
+            src="/favicon_transparent.png"
+            alt="RecallDB"
+            style={{ width: 44, height: 22, objectFit: 'cover', filter: 'invert(0)' }}
+          />
+          <span
+            className="text-[14px] tracking-tight"
+            style={{ fontFamily: 'var(--font-display)', fontWeight: 600 }}
+          >
             RecallDB
           </span>
         </a>
 
         {/* Nav Links */}
-        <nav className="hidden sm:flex items-center gap-8 text-[13px] text-[#555]" style={{ fontFamily: 'var(--font-sans)' }}>
-          <a href="#simulator" className="hover:text-[#111] transition-colors">Simulator</a>
+        <nav
+          className="hidden sm:flex items-center gap-8 text-[13px] text-[#555]"
+          style={{ fontFamily: 'var(--font-sans)' }}
+        >
           <a href="#failures" className="hover:text-[#111] transition-colors">Why RecallDB</a>
-          <a href="#benchmarks" className="hover:text-[#111] transition-colors">Benchmarks</a>
           <a href="#architecture" className="hover:text-[#111] transition-colors">Architecture</a>
+          <a href="#benchmarks" className="hover:text-[#111] transition-colors">Benchmarks</a>
           <a href="#sdk" className="hover:text-[#111] transition-colors">SDK</a>
+          <a href="#simulator" className="hover:text-[#111] transition-colors">Simulator</a>
         </nav>
 
         {/* CTA */}

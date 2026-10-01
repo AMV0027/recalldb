@@ -4,19 +4,19 @@ import ArchitectureDiagramSvg from './ArchitectureDiagramSvg';
 
 const pillars = [
   {
-    num: "1.",
+    num: "01",
     title: "SQLite WAL Engine",
     body: "Write-ahead logging with a 64MB memory cache delivers concurrent multithreaded readers alongside atomic single-writer ACID transactions under 15ms.",
     code: `PRAGMA journal_mode = WAL;\nPRAGMA synchronous = NORMAL;\nPRAGMA cache_size = -64000;`
   },
   {
-    num: "2.",
+    num: "02",
     title: "Bitemporal Relational Model",
     body: "Explicitly bifurcates Valid Time intervals [t_s, t_e) from Transaction Time t_r. Immutable point-in-time state slicing without destructive in-place mutations.",
     code: `as_of(t) = valid_from ≤ t < valid_until\nLineage DAG: ACTIVE → SUPERSEDED`
   },
   {
-    num: "3.",
+    num: "03",
     title: "Dual-Channel Rank Fusion",
     body: "FTS5 BM25 Porter tokenizer indexes alphanumeric exact tokens while SIMD float32 cosine kernels score semantic vectors. Blended via temporal interval gating.",
     code: `Score = αVector + βBM25 + γTemporal\nGated by: isValidAt(query_time)`
@@ -25,21 +25,27 @@ const pillars = [
 
 export default function ArchitectureSection() {
   return (
-    <section id="architecture" className="bg-white border-t border-[#e4e4e4]">
+    <section id="architecture" className="bg-white border-t border-[#e5e7eb]">
       <div className="max-w-6xl mx-auto px-6 py-20">
 
         {/* Header */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-10 mb-14">
           <div className="md:col-span-5">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#166534]"></span>
+              <span className="text-[12px] font-medium tracking-wide text-[#166534] uppercase" style={{ fontFamily: 'var(--font-sans)' }}>
+                Under the Hood
+              </span>
+            </div>
             <motion.h2
               initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.55 }}
-              className="text-[38px] sm:text-[48px] leading-tight tracking-tight text-[#111]"
+              className="text-[38px] sm:text-[46px] leading-[1.05] tracking-tight text-[#111]"
               style={{ fontFamily: 'var(--font-display)', fontWeight: 400 }}
             >
-              Embedded Storage Architecture.
+              Embedded Storage <span className="text-[#166534]">Architecture.</span>
             </motion.h2>
           </div>
           <div className="md:col-span-7 flex flex-col justify-end">
@@ -48,15 +54,15 @@ export default function ArchitectureSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.55, delay: 0.1 }}
-              className="text-[15px] text-[#555] leading-relaxed"
+              className="text-[15px] text-[#4b5563] leading-relaxed"
               style={{ fontFamily: 'var(--font-sans)' }}
             >
-              Zero cloud overhead. Zero daemon processes. RecallDB compiles into a self-contained local SQLite file with native vector BLOBs and inverted indices. A single file is all you need.
+              Zero cloud overhead. Zero daemon processes. RecallDB compiles into a self-contained local SQLite file with native vector BLOBs and inverted indices. A single file is all your agent system needs.
             </motion.p>
           </div>
         </div>
 
-        {/* SVG Diagram */}
+        {/* Interactive React Flow Diagram */}
         <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
@@ -68,7 +74,7 @@ export default function ArchitectureSection() {
         </motion.div>
 
         {/* 3 Pillar Columns */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-0 border-t border-[#e4e4e4]">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-0 border-t border-[#e5e7eb]">
           {pillars.map((p, idx) => (
             <motion.div
               key={idx}
@@ -79,21 +85,21 @@ export default function ArchitectureSection() {
               className="pt-8 pr-8 last:pr-0 space-y-3"
             >
               <div
-                className="text-[28px] leading-none text-[#ddd]"
-                style={{ fontFamily: 'var(--font-display)', fontWeight: 400 }}
+                className="text-[24px] leading-none text-[#9ca3af] font-light"
+                style={{ fontFamily: 'var(--font-mono)' }}
               >
                 {p.num}
               </div>
               <h4
-                className="text-[14px] text-[#111] leading-snug"
+                className="text-[15px] text-[#111] leading-snug"
                 style={{ fontFamily: 'var(--font-display)', fontWeight: 500 }}
               >
                 {p.title}
               </h4>
-              <p className="text-[13px] text-[#666] leading-relaxed" style={{ fontFamily: 'var(--font-sans)' }}>
+              <p className="text-[13px] text-[#4b5563] leading-relaxed" style={{ fontFamily: 'var(--font-sans)' }}>
                 {p.body}
               </p>
-              <div className="font-mono text-[11px] text-[#444] bg-[#f8f8f8] p-3 leading-relaxed whitespace-pre">
+              <div className="font-mono text-[11px] text-[#374151] bg-[#f9fafb] border border-[#f3f4f6] p-3 leading-relaxed whitespace-pre rounded-md">
                 {p.code}
               </div>
             </motion.div>

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Copy, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// YouTube video ID from https://youtu.be/HtG58C56xhU
 const YT_VIDEO_ID = 'HtG58C56xhU';
 
 const HOOKS = [
@@ -18,7 +17,7 @@ const STATS = [
   { value: "1.0000", label: "Recall@1 Accuracy" },
   { value: "0.0%", label: "Temporal Invalidation Errors" },
   { value: "11.47 ms", label: "p50 Retrieval Latency" },
-  { value: "10.7×", label: "Token Reduction" },
+  { value: "10.7×", label: "Token Reduction Efficiency" },
 ];
 
 export default function Hero() {
@@ -37,19 +36,27 @@ export default function Hero() {
   };
 
   return (
-    <section id="lead" className="bg-white pt-16 pb-0">
+    <section id="lead" className="bg-white pt-14 pb-0">
       <div className="max-w-6xl mx-auto px-6">
 
-        {/* ── Headline Block ── */}
+        {/* ── Subtle Category Kicker ── */}
+        <div className="flex items-center gap-2 mb-4">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#166534]"></span>
+          <span className="text-[12px] font-medium tracking-wide text-[#166534] uppercase" style={{ fontFamily: 'var(--font-sans)' }}>
+            Autonomous Agent Memory Engine
+          </span>
+        </div>
+
+        {/* ── Main Headline with Subtle Dark Green Gradient Clip ── */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
-          className="mb-6"
+          className="mb-5"
         >
           <h1
-            className="text-[56px] sm:text-[72px] md:text-[90px] leading-[1.0] tracking-tight text-[#111]"
-            style={{ fontFamily: 'var(--font-display)', fontWeight: 400 }}
+            className="text-[54px] sm:text-[72px] md:text-[88px] leading-[0.98] tracking-tight font-normal bg-clip-text text-transparent bg-gradient-to-r from-[#111111] via-[#14532d] to-[#166534]"
+            style={{ fontFamily: 'var(--font-display)' }}
           >
             SQL for AI memory.
           </h1>
@@ -62,16 +69,16 @@ export default function Hero() {
           transition={{ duration: 0.6, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
           className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-10"
         >
-          {/* Cycling hook */}
-          <div className="min-h-[28px]">
+          {/* Cycling hook with subtle green tint */}
+          <div className="min-h-[28px] flex items-center">
             <AnimatePresence mode="wait">
               <motion.p
                 key={hookIndex}
-                initial={{ opacity: 0, y: 5 }}
+                initial={{ opacity: 0, y: 4 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -5 }}
+                exit={{ opacity: 0, y: -4 }}
                 transition={{ duration: 0.3 }}
-                className="text-[15px] text-[#666]"
+                className="text-[15px] text-[#4b5563] font-normal"
                 style={{ fontFamily: 'var(--font-sans)' }}
               >
                 {HOOKS[hookIndex]}
@@ -79,53 +86,40 @@ export default function Hero() {
             </AnimatePresence>
           </div>
 
-          {/* Install command + See More */}
+          {/* Install command + Quick Link */}
           <div className="flex items-center gap-6 flex-shrink-0">
             <div className="flex items-center gap-3 border-b border-[#111] pb-1">
-              <span className="font-mono text-sm text-[#111]">pip install recalldb</span>
+              <span className="font-mono text-xs sm:text-sm text-[#111]">pip install recalldb</span>
               <button
                 onClick={copyCommand}
-                className="text-[#999] hover:text-[#111] transition-colors"
-                title="Copy"
+                className="text-[#6b7280] hover:text-[#166534] transition-colors"
+                title="Copy command"
               >
-                {copied ? <Check className="w-3.5 h-3.5 text-[#111]" /> : <Copy className="w-3.5 h-3.5" />}
+                {copied ? <Check className="w-3.5 h-3.5 text-[#166534]" /> : <Copy className="w-3.5 h-3.5" />}
               </button>
             </div>
             <a
               href="#simulator"
-              className="flex items-center gap-1 text-[13px] text-[#111] border-b border-[#111] pb-1 hover:text-[#555] hover:border-[#555] transition-colors"
+              className="flex items-center gap-1 text-[13px] text-[#166534] font-medium border-b border-[#166534] pb-1 hover:text-[#14532d] hover:border-[#14532d] transition-colors"
+              style={{ fontFamily: 'var(--font-sans)' }}
             >
-              See More ↗
+              Interactive Simulator ↗
             </a>
           </div>
         </motion.div>
 
-        {/* ── YouTube Video Hero ── */}
+        {/* ── Hero YouTube Video on Loop & Muted with Rounded Edges ── */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.85, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
-          className="w-full overflow-hidden rounded-lg"
-          style={{ height: 'clamp(280px, 50vw, 560px)' }}
+          className="w-full overflow-hidden rounded-xl border border-[#e5e7eb] shadow-sm"
+          style={{ height: 'clamp(280px, 48vw, 540px)' }}
         >
-          {/*
-            YouTube embed parameters:
-            autoplay=1     – starts automatically
-            mute=1         – required for autoplay in browsers
-            loop=1         – loops forever
-            controls=0     – hides player controls
-            playlist=ID    – required for loop to work with a single video
-            rel=0          – no recommended videos at end
-            showinfo=0     – no title overlay
-            modestbranding=1 – minimal YouTube branding
-            iv_load_policy=3 – no annotations
-            disablekb=1    – disable keyboard shortcuts
-            fs=0           – disable fullscreen button
-          */}
-          <div className="yt-wrapper w-full h-full">
+          <div className="yt-wrapper w-full h-full bg-[#0a0a0a]">
             <iframe
               src={`https://www.youtube.com/embed/${YT_VIDEO_ID}?autoplay=1&mute=1&loop=1&controls=0&playlist=${YT_VIDEO_ID}&rel=0&showinfo=0&modestbranding=1&iv_load_policy=3&disablekb=1&fs=0&playsinline=1`}
-              title="RecallDB — Multi-Agent Memory"
+              title="RecallDB — Multi-Agent Memory Orchestration"
               allow="autoplay; encrypted-media"
               allowFullScreen={false}
               className="w-full h-full border-0"
@@ -143,12 +137,12 @@ export default function Hero() {
           </div>
         </motion.div>
 
-        {/* ── Stats Bar ── */}
+        {/* ── Stats Row with Subtle Green Polish ── */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.5 }}
-          className="grid grid-cols-2 md:grid-cols-4 divide-x divide-[#e4e4e4] border-t border-b border-[#e4e4e4]"
+          transition={{ duration: 0.5, delay: 0.45 }}
+          className="grid grid-cols-2 md:grid-cols-4 divide-x divide-[#e5e7eb] border-t border-b border-[#e5e7eb] mt-0"
         >
           {STATS.map((s, i) => (
             <div key={i} className="py-7 px-6 first:pl-0">
@@ -158,7 +152,7 @@ export default function Hero() {
               >
                 {s.value}
               </div>
-              <div className="text-[12px] text-[#888] mt-2 leading-snug" style={{ fontFamily: 'var(--font-sans)' }}>
+              <div className="text-[12px] text-[#6b7280] mt-2 leading-snug" style={{ fontFamily: 'var(--font-sans)' }}>
                 {s.label}
               </div>
             </div>

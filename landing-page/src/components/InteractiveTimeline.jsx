@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Calendar, Clock, Check, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const TIMELINE_DATA = {
@@ -61,7 +60,7 @@ const TIMELINE_DATA = {
       result: "Returns Latest Record: Go 1.22 with Gin framework [0.884]",
       score: 0.884,
       status: "Historical Amnesia",
-      critique: "Historical Amnesia: Pure vector index has zero concept of time-slices. It cannot reconstruct past states."
+      critique: "Historical Amnesia: Pure vector index has zero concept of time-slices. Cannot reconstruct past states."
     }
   },
   "2026": {
@@ -81,7 +80,7 @@ const TIMELINE_DATA = {
       result: "Triple Collision: (1) Python [0.891], (2) Go [0.884], (3) Rust [0.879]",
       score: 0.891,
       status: "Semantic Collapse",
-      critique: "Semantic Collapse: Python ranks higher than Rust due to embedding lexical density, poisoning agent context."
+      critique: "Python ranks higher than Rust due to embedding lexical density, poisoning agent context."
     }
   }
 };
@@ -91,26 +90,40 @@ export default function InteractiveTimeline() {
   const data = TIMELINE_DATA[selectedYear];
 
   return (
-    <section id="simulator" className="py-14 bg-[#faf8f5] border-b border-[#e7e5e4]">
-      <div className="max-w-5xl mx-auto px-6">
+    <section id="simulator" className="bg-white border-t border-[#e4e4e4]">
+      <div className="max-w-6xl mx-auto px-6 py-20">
+
         {/* Section Header */}
-        <div className="border-b border-[#1c1917] pb-3 mb-8">
-          <div className="text-[11px] font-serif uppercase tracking-widest text-[#78716c] mb-1">
-            Section II &bull; Chronology & Invalidation
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-10 mb-14">
+          <div className="md:col-span-5">
+            <motion.h2
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.55 }}
+              className="text-[38px] sm:text-[48px] font-normal leading-tight tracking-tight text-[#111]"
+            >
+              Memory Simulator.
+            </motion.h2>
           </div>
-          <h3 className="font-serif text-2xl sm:text-3xl font-normal text-[#1c1917]">
-            The Bitemporal Memory Simulator
-          </h3>
-          <p className="font-serif text-xs sm:text-sm text-[#57534e] mt-1 leading-relaxed">
-            Select an evaluation timestamp to witness how point-in-time intervals resolve state transitions versus unindexed vector drift.
-          </p>
+          <div className="md:col-span-7 flex flex-col justify-end">
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.55, delay: 0.1 }}
+              className="text-[15px] text-[#555] leading-relaxed"
+            >
+              Select an evaluation timestamp to witness how bitemporal point-in-time intervals resolve state transitions versus unindexed vector drift.
+            </motion.p>
+          </div>
         </div>
 
-        {/* Timeline Selector Bar */}
+        {/* Timeline Selector */}
         <div className="mb-8">
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#e7e5e4] pb-2 text-xs font-serif text-[#78716c]">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#e4e4e4] pb-2 text-[12px] text-[#888]">
             <span>Timeline Milestone:</span>
-            <span>Target as_of: <strong className="text-[#1c1917] font-mono">{data.asOf}</strong></span>
+            <span>as_of: <strong className="text-[#111] font-mono">{data.asOf}</strong></span>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-3">
@@ -118,31 +131,31 @@ export default function InteractiveTimeline() {
               <button
                 key={yr}
                 onClick={() => setSelectedYear(yr)}
-                className={`py-2 px-3 text-left font-serif transition-colors border-b-2 ${
+                className={`py-2.5 px-3 text-left text-[13px] transition-colors border-b-2 ${
                   selectedYear === yr
-                    ? 'border-[#1c1917] text-[#1c1917] bg-[#f5f2eb] font-medium'
-                    : 'border-transparent text-[#78716c] hover:text-[#1c1917] hover:border-[#d6d3d1]'
+                    ? 'border-[#111] text-[#111] font-medium'
+                    : 'border-transparent text-[#888] hover:text-[#111] hover:border-[#ccc]'
                 }`}
               >
-                <div className="text-xs">{TIMELINE_DATA[yr].label}</div>
+                {TIMELINE_DATA[yr].label}
               </button>
             ))}
           </div>
 
-          <div className="mt-3 p-3 bg-[#f5f2eb] border border-[#e7e5e4] text-xs font-serif text-[#44403c] italic">
-            Event Log: {data.eventDesc}
+          <div className="mt-3 p-4 bg-[#fafafa] border border-[#e4e4e4] text-[12px] text-[#666] italic">
+            {data.eventDesc}
           </div>
         </div>
 
-        {/* Query Headline */}
-        <div className="mb-6 pb-2 border-b border-[#e7e5e4]">
-          <span className="text-[11px] font-serif uppercase tracking-wider text-[#78716c]">Retrieval Prompt: </span>
-          <span className="font-serif italic text-sm text-[#1c1917]">
+        {/* Query */}
+        <div className="mb-6 pb-3 border-b border-[#e4e4e4]">
+          <span className="text-[11px] uppercase tracking-wider text-[#aaa]">Retrieval Prompt: </span>
+          <span className="text-[14px] text-[#111] italic">
             "{data.isHistoricalDemo ? 'What backend language was I using in mid-2022?' : 'What backend language does the user use?'}"
           </span>
         </div>
 
-        {/* Two-Column Side-by-Side Comparison (Editorial Style, No Heavy Boxes) */}
+        {/* Side-by-side comparison */}
         <AnimatePresence mode="wait">
           <motion.div
             key={selectedYear}
@@ -150,55 +163,49 @@ export default function InteractiveTimeline() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -6 }}
             transition={{ duration: 0.2 }}
-            className="grid grid-cols-1 md:grid-cols-2 gap-8 font-serif"
+            className="grid grid-cols-1 md:grid-cols-2 gap-10"
           >
-            {/* Left Column: RecallDB */}
+            {/* Left: RecallDB */}
             <div className="space-y-3 pb-4">
-              <div className="flex items-center justify-between border-b border-[#1c1917] pb-1.5">
-                <span className="text-xs uppercase tracking-wider font-semibold text-[#1c1917]">
+              <div className="flex items-center justify-between border-b border-[#111] pb-1.5">
+                <span className="text-[12px] uppercase tracking-wider font-medium text-[#111]">
                   RecallDB Bitemporal Engine
                 </span>
-                <span className="text-xs font-mono text-[#78716c]">
+                <span className="text-[12px] font-mono text-[#888]">
                   Score: {data.recalldb.score}
                 </span>
               </div>
-
-              <div className="text-sm font-medium text-[#1c1917] leading-relaxed">
+              <div className="text-[14px] text-[#111] leading-relaxed">
                 "{data.recalldb.result}"
               </div>
-
-              <div className="text-xs text-[#78716c] flex items-center gap-2 font-mono">
-                <span className="text-[#1c1917] font-semibold">[{data.recalldb.state}]</span>
-                <span>&bull;</span>
+              <div className="text-[12px] text-[#888] flex items-center gap-2 font-mono">
+                <span className="text-[#111] font-medium">[{data.recalldb.state}]</span>
+                <span>·</span>
                 <span>Valid: {data.recalldb.validWindow}</span>
               </div>
-
-              <p className="text-xs text-[#57534e] leading-relaxed italic border-t border-[#e7e5e4] pt-2">
-                Editorial Finding: {data.recalldb.explanation}
+              <p className="text-[13px] text-[#555] leading-relaxed italic border-t border-[#e4e4e4] pt-2">
+                {data.recalldb.explanation}
               </p>
             </div>
 
-            {/* Right Column: Standard Vector Store */}
-            <div className="space-y-3 pb-4 md:border-l md:border-[#e7e5e4] md:pl-8">
-              <div className="flex items-center justify-between border-b border-[#d6d3d1] pb-1.5">
-                <span className="text-xs uppercase tracking-wider text-[#78716c]">
-                  Conventional Vector Store (Dense Only)
+            {/* Right: Vector Store */}
+            <div className="space-y-3 pb-4 md:border-l md:border-[#e4e4e4] md:pl-10">
+              <div className="flex items-center justify-between border-b border-[#e4e4e4] pb-1.5">
+                <span className="text-[12px] uppercase tracking-wider text-[#aaa]">
+                  Conventional Vector Store
                 </span>
-                <span className="text-xs font-mono text-[#78716c]">
+                <span className="text-[12px] font-mono text-[#aaa]">
                   Score: {data.vectordb.score}
                 </span>
               </div>
-
-              <div className="text-sm text-[#78716c] leading-relaxed">
+              <div className="text-[14px] text-[#999] leading-relaxed">
                 "{data.vectordb.result}"
               </div>
-
-              <div className="text-xs text-[#991b1b] font-mono">
-                Failure Mode: {data.vectordb.status}
+              <div className="text-[12px] text-[#c0392b] font-mono">
+                Failure: {data.vectordb.status}
               </div>
-
-              <p className="text-xs text-[#78716c] leading-relaxed italic border-t border-[#e7e5e4] pt-2">
-                Pathology: {data.vectordb.critique}
+              <p className="text-[13px] text-[#888] leading-relaxed italic border-t border-[#e4e4e4] pt-2">
+                {data.vectordb.critique}
               </p>
             </div>
           </motion.div>

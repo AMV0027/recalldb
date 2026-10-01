@@ -3,39 +3,40 @@ import { Github, Database } from 'lucide-react';
 
 export default function Footer() {
   return (
-    <footer className="py-10 bg-[#faf8f5] text-[#57534e] font-serif text-xs border-t-2 border-[#1c1917]">
-      <div className="max-w-5xl mx-auto px-6 space-y-4">
-        {/* Top Colophon Line */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[#e7e5e4] pb-4">
-          <div className="flex items-center gap-2">
-            <span className="font-serif text-base font-normal text-[#1c1917]">The RecallDB Dispatch</span>
-            <span className="text-[#78716c]">&bull;</span>
-            <span className="italic">Vol. I, No. 1</span>
+    <footer className="bg-white border-t border-[#e4e4e4] py-12">
+      <div className="max-w-6xl mx-auto px-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+          {/* Brand */}
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="font-mono text-[11px] tracking-widest uppercase text-[#aaa]">[ DB ]</span>
+              <span className="text-[14px] font-medium text-[#111]">RecallDB</span>
+            </div>
+            <p className="text-[12px] text-[#888]">
+              Open-source bitemporal memory for AI agents.<br />
+              Built by <span className="text-[#111]">Arunmozhi Varman</span>, BloomBig Studio — Coimbatore, India.
+            </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-6">
+          {/* Links */}
+          <div className="flex flex-wrap items-center gap-8 text-[13px] text-[#555]">
             <a
               href="https://github.com/AMV0027/recalldb"
               target="_blank"
               rel="noreferrer"
-              className="text-[#1c1917] hover:underline underline-offset-4 flex items-center gap-1.5"
+              className="flex items-center gap-1.5 hover:text-[#111] transition-colors"
             >
               <Github className="w-3.5 h-3.5" />
-              <span>GitHub (AMV0027/recalldb)</span>
+              GitHub
             </a>
-            <span>MIT License</span>
-            <span className="font-mono text-[11px] text-[#1c1917]">pip install recalldb</span>
+            <span className="font-mono text-[12px] text-[#888]">pip install recalldb</span>
+            <span className="text-[#ccc]">MIT License</span>
           </div>
         </div>
 
-        {/* Imprint Text */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-[11px] text-[#78716c]">
-          <p>
-            An open-source cognitive memory system engineered by <strong className="text-[#1c1917]">Arunmozhi Varman</strong>. Coimbatore, Tamil Nadu, India.
-          </p>
-          <p>
-            Printed digitally on newsprint. All benchmark data is fully reproducible.
-          </p>
+        <div className="mt-8 pt-6 border-t border-[#f0f0f0] text-[11px] text-[#bbb] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+          <span>RecallDB v0.1.0 — All benchmark data is fully reproducible.</span>
+          <span>© 2026 Arunmozhi Varman</span>
         </div>
       </div>
     </footer>

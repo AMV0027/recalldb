@@ -54,7 +54,12 @@ Thumbs.db
 *.swp
 *.swo
 
+# PyPI Credentials & Secrets
+.pypirc
+*.pypirc
+
 # Benchmark Temporary Outputs
 app/bench/runs/
 research/empirical_paper/experimental_data/*.tmp
 research/empirical_paper/preview/
+

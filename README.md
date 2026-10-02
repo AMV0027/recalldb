@@ -1,13 +1,19 @@
+<div align="center">
+
+<img src="docs/assets/banner.png" alt="RecallDB: SQL for AI Memory" width="100%" />
+
 # RecallDB
 
-> **An open-source research and infrastructure platform for persistent, temporal agent memory and reproducible memory evaluation.**
+**SQL for AI memory — A local-first, bitemporal hybrid persistent memory engine for autonomous AI agents.**
 
+[![PyPI Version](https://img.shields.io/pypi/v/recalldb-ai.svg?color=green)](https://pypi.org/project/recalldb-ai/)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23107756.svg)](https://doi.org/10.5281/zenodo.23107756)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/)
-[![Status: Research Preprint](https://img.shields.io/badge/status-research--preprint-success.svg)]()
+[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/)
 
-📄 **Research Paper:** [Read on Zenodo (DOI: 10.5281/zenodo.23107756)](https://doi.org/10.5281/zenodo.23107756) | [Download IEEE PDF](https://github.com/AMV0027/recalldb/raw/main/research/empirical_paper/recalldb_empirical_ieee.pdf)
+[**📄 Read Research Paper (Zenodo DOI)**](https://doi.org/10.5281/zenodo.23107756) · [**📦 PyPI Package**](https://pypi.org/project/recalldb-ai/) · [**🔬 SynTemp-100 Benchmarks**](#-recalldb-bench--empirical-evaluation)
+
+</div>
 
 ---
 

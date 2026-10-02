@@ -10,8 +10,10 @@ const papers = [
     author: "Arunmozhi Varman K",
     abstract: "Formalizes the bitemporal state-machine algebra, embedded SQLite WAL engine architecture, and empirical evaluation on the SynTemp-100 benchmark. Demonstrates +224.7% relative gain in Recall@1 and drops temporal invalidation failure from 69.2% to 0.0% with sub-15ms local retrieval.",
     metrics: "1.0000 Recall@1 · 0.0% E_temp · 11.47ms p50",
+    doi: "10.5281/zenodo.23107756",
+    doiUrl: "https://doi.org/10.5281/zenodo.23107756",
     pdfUrl: "/papers/recalldb_empirical_ieee.pdf",
-    driveUrl: "https://drive.google.com/file/d/1WrCthAQfoqUkqT-ApcknIl1vAcW1PZsq/view?usp=drivesdk",
+    driveUrl: "https://drive.google.com/file/d/1bOKGValoOgZsT2qbXjd2SxTRnIy6cxPO/view?usp=drivesdk",
     mdUrl: "https://github.com/AMV0027/recalldb/blob/main/research/empirical_paper/recalldb_empirical.md",
     pages: "12 Pages · IEEE 2-Column PDF"
   },
@@ -23,7 +25,7 @@ const papers = [
     abstract: "A rigorous survey of 12 landmark agent memory systems (MemGPT, LongMemEval, Mem0, HippoRAG, Zep, A-MEM). Uncovers the Four Grand Failures of Vector Memory and establishes a 5-layer taxonomic framework for bitemporal relational state machines.",
     metrics: "12 Systems Evaluated · 4 Failure Modes · Bitemporal DAG",
     pdfUrl: "/papers/survey_agent_memory_ieee.pdf",
-    driveUrl: "https://drive.google.com/file/d/1ARsdQPkns5Ej3_M8PnMK3CTkjIHqJFiG/view?usp=drivesdk",
+    driveUrl: "https://drive.google.com/file/d/1u9qcTieSR9FIbJNWNlW_CoDwOhm27YLL/view?usp=drivesdk",
     mdUrl: "https://github.com/AMV0027/recalldb/blob/main/research/review_paper/survey_agent_memory.md",
     pages: "20 Pages · IEEE 2-Column PDF"
   }
@@ -80,13 +82,25 @@ export default function ResearchPapersSection() {
               className="flex flex-col justify-between space-y-4 border border-[#e5e7eb] p-6 rounded-xl hover:border-[#166534]/50 transition-colors shadow-sm bg-white"
             >
               <div className="space-y-3">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-2 flex-wrap">
                   <span className="text-[11px] uppercase tracking-widest text-[#166534] font-medium font-mono">
                     {p.label}
                   </span>
-                  <span className="text-[11px] font-mono text-[#6b7280] bg-[#f9fafb] px-2 py-0.5 rounded border border-[#f3f4f6]">
-                    {p.pages}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    {p.doi && (
+                      <a
+                        href={p.doiUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-[11px] font-mono text-[#166534] bg-[#f0fdf4] px-2 py-0.5 rounded border border-[#bbf7d0] hover:bg-[#dcfce7] transition-colors"
+                      >
+                        DOI: {p.doi}
+                      </a>
+                    )}
+                    <span className="text-[11px] font-mono text-[#6b7280] bg-[#f9fafb] px-2 py-0.5 rounded border border-[#f3f4f6]">
+                      {p.pages}
+                    </span>
+                  </div>
                 </div>
 
                 <h3

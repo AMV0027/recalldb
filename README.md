@@ -2,9 +2,12 @@
 
 > **An open-source research and infrastructure platform for persistent, temporal agent memory and reproducible memory evaluation.**
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23107756.svg)](https://doi.org/10.5281/zenodo.23107756)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/)
-[![Status: Research Prototype](https://img.shields.io/badge/status-research--prototype-orange.svg)]()
+[![Status: Research Preprint](https://img.shields.io/badge/status-research--preprint-success.svg)]()
+
+📄 **Research Paper:** [Read on Zenodo (DOI: 10.5281/zenodo.23107756)](https://doi.org/10.5281/zenodo.23107756) | [Download IEEE PDF](https://github.com/AMV0027/recalldb/raw/main/research/empirical_paper/recalldb_empirical_ieee.pdf)
 
 ---
 
@@ -160,6 +163,26 @@ print(past[0].content)     # -> "MySQL 8.0 on port 3306"
 
 ---
 
+## 📚 Citation
+
+If you use RecallDB in your research, software agents, or benchmarks, please cite our technical paper:
+
+```bibtex
+@article{varman2026recalldb,
+  title={RecallDB: A Local-First, Bitemporal Hybrid Engine for Long-Horizon Agent Memory and Decoupled Evaluation},
+  author={Varman K, Arunmozhi},
+  journal={Bloombig AI Systems Research Preprint},
+  year={2026},
+  doi={10.5281/zenodo.23107756},
+  url={https://doi.org/10.5281/zenodo.23107756}
+}
+```
+
+---
+
 ## 📜 License
+
+MIT License © 2026 Arunmozhi Varman K. Free for academic, personal, and commercial software agent development.
+
 
 MIT License. Developed for open-source AI agent research.

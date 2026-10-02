@@ -30,7 +30,7 @@ export default function Hero() {
   }, []);
 
   const copyCommand = () => {
-    navigator.clipboard.writeText('pip install recalldb');
+    navigator.clipboard.writeText('pip install recalldb-ai');
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -89,7 +89,7 @@ export default function Hero() {
           {/* Install command + Quick Link */}
           <div className="flex flex-wrap items-center gap-4 sm:gap-6 flex-shrink-0">
             <div className="flex items-center gap-2.5 border-b border-[#111] pb-1">
-              <span className="font-mono text-xs sm:text-sm text-[#111]">pip install recalldb</span>
+              <span className="font-mono text-xs sm:text-sm text-[#111]">pip install recalldb-ai</span>
               <button
                 onClick={copyCommand}
                 className="text-[#6b7280] hover:text-[#166534] transition-colors"

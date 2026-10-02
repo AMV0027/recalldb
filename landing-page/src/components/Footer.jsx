@@ -49,7 +49,7 @@ export default function Footer() {
               <Github className="w-3.5 h-3.5" />
               GitHub
             </a>
-            <span className="font-mono text-[12px] text-[#166534]">pip install recalldb</span>
+            <span className="font-mono text-[12px] text-[#166534]">pip install recalldb-ai</span>
             <span className="text-[#9ca3af]">MIT License</span>
           </div>
         </div>

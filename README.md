@@ -56,13 +56,13 @@ Modern AI agents maintain context within single conversation sessions, but long-
 
 ```bash
 # Standard local-first installation (Zero external daemons, pure SQLite WAL)
-pip install recalldb
+pip install recalldb-ai
 
 # Optional: with AI provider SDKs
-pip install "recalldb[ai]"     # Installs OpenAI & Anthropic SDKs
+pip install "recalldb-ai[ai]"     # Installs OpenAI & Anthropic SDKs
 
 # Optional: with local PyTorch SentenceTransformers
-pip install "recalldb[ml]"     # Local neural embedding models
+pip install "recalldb-ai[ml]"     # Local neural embedding models
 ```
 
 ---

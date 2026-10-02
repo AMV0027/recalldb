@@ -33,14 +33,6 @@ export default function Footer() {
               Research Papers
             </a>
             <a
-              href="https://drive.google.com/file/d/1WrCthAQfoqUkqT-ApcknIl1vAcW1PZsq/view?usp=drivesdk"
-              target="_blank"
-              rel="noreferrer"
-              className="hover:text-[#166534] transition-colors"
-            >
-              Drive PDF ↗
-            </a>
-            <a
               href="https://github.com/AMV0027/recalldb"
               target="_blank"
               rel="noreferrer"

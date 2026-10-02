@@ -12,22 +12,20 @@ const papers = [
     metrics: "1.0000 Recall@1 · 0.0% E_temp · 11.47ms p50",
     doi: "10.5281/zenodo.23107756",
     doiUrl: "https://doi.org/10.5281/zenodo.23107756",
-    pdfUrl: "/papers/recalldb_empirical_ieee.pdf",
-    driveUrl: "https://drive.google.com/file/d/1bOKGValoOgZsT2qbXjd2SxTRnIy6cxPO/view?usp=drivesdk",
+    pdfUrl: "/papers/recalldb_empirical.pdf",
     mdUrl: "https://github.com/AMV0027/recalldb/blob/main/research/empirical_paper/recalldb_empirical.md",
-    pages: "12 Pages · IEEE 2-Column PDF"
+    pages: "12 Pages · Research PDF"
   },
   {
     label: "Systematic Survey & Taxonomy",
     title: "Persistent, Temporal, and Hierarchical Memory in Autonomous Agents: A Comprehensive Survey and Taxonomy",
-    venue: "IEEE Trans. on AI & Autonomous Systems Track (2026)",
+    venue: "AI & Autonomous Systems Research Track (2026)",
     author: "Arunmozhi Varman K",
     abstract: "A rigorous survey of 12 landmark agent memory systems (MemGPT, LongMemEval, Mem0, HippoRAG, Zep, A-MEM). Uncovers the Four Grand Failures of Vector Memory and establishes a 5-layer taxonomic framework for bitemporal relational state machines.",
     metrics: "12 Systems Evaluated · 4 Failure Modes · Bitemporal DAG",
-    pdfUrl: "/papers/survey_agent_memory_ieee.pdf",
-    driveUrl: "https://drive.google.com/file/d/1u9qcTieSR9FIbJNWNlW_CoDwOhm27YLL/view?usp=drivesdk",
+    pdfUrl: "/papers/survey_agent_memory.pdf",
     mdUrl: "https://github.com/AMV0027/recalldb/blob/main/research/review_paper/survey_agent_memory.md",
-    pages: "20 Pages · IEEE 2-Column PDF"
+    pages: "20 Pages · Research PDF"
   }
 ];
 
@@ -65,7 +63,7 @@ export default function ResearchPapersSection() {
               className="text-[15px] text-[#4b5563] leading-relaxed"
               style={{ fontFamily: 'var(--font-sans)' }}
             >
-              RecallDB was engineered as a reproducible scientific instrument. Full manuscripts are published as publication-grade IEEE double-column PDFs with open-source benchmark scripts and ablation data.
+              RecallDB was engineered as a reproducible scientific instrument. Full manuscripts are published as publication-grade research PDFs with open-source benchmark scripts and ablation data.
             </motion.p>
           </div>
         </div>
@@ -133,18 +131,10 @@ export default function ResearchPapersSection() {
                   style={{ fontFamily: 'var(--font-sans)' }}
                 >
                   <FileText className="w-3.5 h-3.5" />
-                  <span>Read IEEE PDF ↗</span>
+                  <span>Read Research PDF ↗</span>
                 </a>
 
-                <div className="flex items-center gap-3.5 text-[12px]">
-                  <a
-                    href={p.driveUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-1 text-[#166534] hover:text-[#14532d] font-medium transition-colors"
-                  >
-                    <span>Drive ↗</span>
-                  </a>
+                <div className="flex items-center gap-4 text-[12px]">
                   <a
                     href={p.pdfUrl}
                     download

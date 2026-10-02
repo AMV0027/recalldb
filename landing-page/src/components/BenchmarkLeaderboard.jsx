@@ -130,8 +130,13 @@ export default function BenchmarkLeaderboard() {
           <p>
             <span className="text-[#166534]" style={{ fontFamily: 'var(--font-display)', fontWeight: 600 }}>Key Finding:</span> Bitemporal Hybrid yields +224.7% relative gain in Recall@1 over pure dense search and drops E_temp from 69.2% to 0.0%.
           </p>
-          <a href="#papers" className="flex items-center gap-1 text-[#166534] font-medium border-b border-[#166534] pb-0.5 flex-shrink-0 hover:text-[#14532d] hover:border-[#14532d] transition-colors">
-            Read the Paper <ArrowUpRight className="w-3.5 h-3.5" />
+          <a
+            href="/papers/recalldb_empirical_ieee.pdf"
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center gap-1 text-[#166534] font-medium border-b border-[#166534] pb-0.5 flex-shrink-0 hover:text-[#14532d] hover:border-[#14532d] transition-colors"
+          >
+            Read IEEE Paper (PDF) <ArrowUpRight className="w-3.5 h-3.5" />
           </a>
         </div>
       </div>

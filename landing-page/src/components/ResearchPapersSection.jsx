@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowUpRight } from 'lucide-react';
+import { ArrowUpRight, FileText, Download } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const papers = [
@@ -7,26 +7,30 @@ const papers = [
     label: "Empirical Systems Paper",
     title: "RecallDB: A Local-First, Bitemporal Hybrid Engine for Long-Horizon Agent Memory and Decoupled Evaluation",
     venue: "NeurIPS / VLDB / OSDI AI Systems Track (2026)",
-    author: "Arunmozhi Varman",
+    author: "Arunmozhi Varman K and Amarnath P",
     abstract: "Formalizes the bitemporal state-machine algebra, embedded SQLite WAL engine architecture, and empirical evaluation on the SynTemp-100 benchmark. Demonstrates +224.7% relative gain in Recall@1 and drops temporal invalidation failure from 69.2% to 0.0% with sub-15ms local retrieval.",
     metrics: "1.0000 Recall@1 · 0.0% E_temp · 11.47ms p50",
-    link: "https://github.com/AMV0027/recalldb/blob/main/research/empirical_paper/recalldb_empirical.md"
+    pdfUrl: "/papers/recalldb_empirical_ieee.pdf",
+    mdUrl: "https://github.com/AMV0027/recalldb/blob/main/research/empirical_paper/recalldb_empirical.md",
+    pages: "12 Pages · IEEE 2-Column PDF"
   },
   {
     label: "Systematic Survey & Taxonomy",
     title: "Persistent, Temporal, and Hierarchical Memory in Autonomous Agents: A Comprehensive Survey and Taxonomy",
     venue: "IEEE Trans. on AI & Autonomous Systems Track (2026)",
-    author: "Arunmozhi Varman",
+    author: "Arunmozhi Varman K and Amarnath P",
     abstract: "A rigorous survey of 12 landmark agent memory systems (MemGPT, LongMemEval, Mem0, HippoRAG, Zep, A-MEM). Uncovers the Four Grand Failures of Vector Memory and establishes a 5-layer taxonomic framework for bitemporal relational state machines.",
     metrics: "12 Systems Evaluated · 4 Failure Modes · Bitemporal DAG",
-    link: "https://github.com/AMV0027/recalldb/blob/main/research/review_paper/survey_agent_memory.md"
+    pdfUrl: "/papers/survey_agent_memory_ieee.pdf",
+    mdUrl: "https://github.com/AMV0027/recalldb/blob/main/research/review_paper/survey_agent_memory.md",
+    pages: "20 Pages · IEEE 2-Column PDF"
   }
 ];
 
 export default function ResearchPapersSection() {
   return (
     <section id="papers" className="bg-white border-t border-[#e5e7eb]">
-      <div className="max-w-6xl mx-auto px-6 py-20">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-20">
 
         {/* Header */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-10 mb-14">
@@ -34,7 +38,7 @@ export default function ResearchPapersSection() {
             <div className="flex items-center gap-2 mb-3">
               <span className="w-1.5 h-1.5 rounded-full bg-[#166534]"></span>
               <span className="text-[12px] font-medium tracking-wide text-[#166534] uppercase" style={{ fontFamily: 'var(--font-sans)' }}>
-                Academic Literature
+                Academic Literature & Preprints
               </span>
             </div>
             <motion.h2
@@ -57,13 +61,13 @@ export default function ResearchPapersSection() {
               className="text-[15px] text-[#4b5563] leading-relaxed"
               style={{ fontFamily: 'var(--font-sans)' }}
             >
-              RecallDB was engineered as a reproducible scientific instrument. Benchmark datasets, ablation scripts, and manuscript drafts are fully documented and open-source.
+              RecallDB was engineered as a reproducible scientific instrument. Full manuscripts are published as publication-grade IEEE double-column PDFs with open-source benchmark scripts and ablation data.
             </motion.p>
           </div>
         </div>
 
         {/* Paper Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-0 border-t border-[#e5e7eb]">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 border-t border-[#e5e7eb] pt-10">
           {papers.map((p, idx) => (
             <motion.div
               key={idx}
@@ -71,33 +75,70 @@ export default function ResearchPapersSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.45, delay: idx * 0.1 }}
-              className="pt-10 pr-10 last:pr-0 space-y-4"
+              className="flex flex-col justify-between space-y-4 border border-[#e5e7eb] p-6 rounded-xl hover:border-[#166534]/50 transition-colors shadow-sm bg-white"
             >
-              <div className="text-[11px] uppercase tracking-widest text-[#166534] font-medium font-mono">
-                {p.label}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] uppercase tracking-widest text-[#166534] font-medium font-mono">
+                    {p.label}
+                  </span>
+                  <span className="text-[11px] font-mono text-[#6b7280] bg-[#f9fafb] px-2 py-0.5 rounded border border-[#f3f4f6]">
+                    {p.pages}
+                  </span>
+                </div>
+
+                <h3
+                  className="text-[17px] text-[#111] leading-snug font-medium"
+                  style={{ fontFamily: 'var(--font-display)' }}
+                >
+                  {p.title}
+                </h3>
+
+                <div className="text-[12px] text-[#6b7280]" style={{ fontFamily: 'var(--font-sans)' }}>
+                  {p.author} · <span className="italic">{p.venue}</span>
+                </div>
+
+                <p className="text-[13px] text-[#4b5563] leading-relaxed" style={{ fontFamily: 'var(--font-sans)' }}>
+                  {p.abstract}
+                </p>
+
+                <div className="font-mono text-[11px] text-[#166534] pt-1 font-medium">
+                  {p.metrics}
+                </div>
               </div>
-              <h4
-                className="text-[16px] text-[#111] leading-snug"
-                style={{ fontFamily: 'var(--font-display)', fontWeight: 500 }}
-              >
-                {p.title}
-              </h4>
-              <div className="text-[12px] text-[#6b7280]" style={{ fontFamily: 'var(--font-sans)' }}>
-                {p.author} · {p.venue}
+
+              {/* Action Buttons */}
+              <div className="pt-4 border-t border-[#f3f4f6] flex flex-wrap items-center justify-between gap-3">
+                <a
+                  href={p.pdfUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1.5 text-[13px] text-white bg-[#166534] hover:bg-[#14532d] px-4 py-2 rounded font-medium transition-colors shadow-sm"
+                  style={{ fontFamily: 'var(--font-sans)' }}
+                >
+                  <FileText className="w-3.5 h-3.5" />
+                  <span>Read IEEE PDF ↗</span>
+                </a>
+
+                <div className="flex items-center gap-4 text-[12px]">
+                  <a
+                    href={p.pdfUrl}
+                    download
+                    className="inline-flex items-center gap-1 text-[#4b5563] hover:text-[#166534] transition-colors"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>Download</span>
+                  </a>
+                  <a
+                    href={p.mdUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-[#6b7280] hover:text-[#111] transition-colors"
+                  >
+                    Markdown
+                  </a>
+                </div>
               </div>
-              <p className="text-[13px] text-[#4b5563] leading-relaxed" style={{ fontFamily: 'var(--font-sans)' }}>
-                {p.abstract}
-              </p>
-              <div className="font-mono text-[11px] text-[#166534] pt-1">{p.metrics}</div>
-              <a
-                href={p.link}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1 text-[13px] text-[#166534] font-medium border-b border-[#166534] pb-0.5 hover:text-[#14532d] hover:border-[#14532d] transition-colors"
-                style={{ fontFamily: 'var(--font-sans)' }}
-              >
-                Read Paper <ArrowUpRight className="w-3.5 h-3.5" />
-              </a>
             </motion.div>
           ))}
         </div>

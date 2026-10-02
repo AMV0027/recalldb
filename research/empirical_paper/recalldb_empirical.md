@@ -137,33 +137,7 @@ satisfying $\alpha + \beta + \gamma + \delta = 1.00$.
 
 RecallDB is designed according to the **Local-First Software Principle** (Kleppmann et al., 2019): the entire storage, retrieval, and indexing pipeline executes in-process within the host agent runtime without external network calls, background daemon dependencies, or separate service processes.
 
-```mermaid
-flowchart TD
-    subgraph ClientRuntime ["Host Agent Runtime (Python In-Process)"]
-        API[RecallDB Client API]
-        FSM[MemoryLifecycleManager FSM]
-        Ranker[Multi-Factor Hybrid Ranker]
-    end
-
-    subgraph StorageSubstrate ["Embedded Storage Substrate (memory.db - SQLite WAL)"]
-        MemTable[(memories Table)]
-        FTSIndex[(memories_fts Virtual Table - Porter)]
-        BlobVectors[(embedding BLOBs - IEEE 754 Float32)]
-        Triggers[FTS Sync Triggers]
-    end
-
-    API -->|remember / supersede| FSM
-    FSM -->|Atomic Write Transaction| MemTable
-    MemTable -->|Trigger Auto-Sync| Triggers
-    Triggers -->|Synchronous Index| FTSIndex
-    MemTable -.->|Binary Vector Serialization| BlobVectors
-
-    API -->|recall as_of=t| Ranker
-    Ranker -->|FTS5 BM25 Candidate Generation| FTSIndex
-    Ranker -->|In-Memory Dot Product| BlobVectors
-    Ranker -->|Bitemporal Slicing sigma_bitemp| MemTable
-    Ranker -->|Ranked Explanations| API
-```
+![Figure 1: RecallDB Local-First Storage and Retrieval Pipeline Architecture](../figures/fig1_architecture.png)
 
 ### 3.1 Embedded Storage Substrate & Schema DDL
 
@@ -362,16 +336,7 @@ Table 2 presents the results of the Tri-Factor Failure Attribution diagnostic ac
 | **Hybrid No Temporal** | 27 | 14 | 0 | 13 | 0 | **48.1%** |
 | **Lexical BM25 Only** | 27 | 14 | 0 | 13 | 0 | **48.1%** |
 
-```mermaid
-xychart-beta
-    title "Failure Attribution Distribution across Configurations"
-    x-axis ["Full Hybrid", "Dense Only", "Hybrid No Temp", "BM25 Only"]
-    y-axis "Probe Count (out of 12)" 0 --> 12
-    bar [10, 6, 2, 0]
-    bar [0, 0, 3, 5]
-    bar [2, 6, 7, 7]
-```
-*(Legend: Bar 1 = Successes, Bar 2 = Retrieval Failures, Bar 3 = Temporal Failures)*
+![Figure 2: Empirical Benchmark Comparison on SynTemp-100 showing Recall@1 gain and elimination of Temporal Invalidation Errors](../figures/fig2_benchmarks.png)
 
 #### The 50% Silent Failure Mode of Dense Vector Search
 The failure attribution analysis uncovers a critical phenomenon: **Dense Vector Only achieves Recall@5 = 1.0000, yet fails on 50.0% of Top-1 queries.**
@@ -440,12 +405,12 @@ Empirical evaluation on the SynTemp-50 benchmark suite demonstrates that RecallD
 ### Reproducibility Statement
 To ensure full scientific reproducibility, all source code, benchmark dataset generators, baseline adapters, metric calculation modules, and raw experimental evaluation traces are open-sourced under the MIT License within the project repository:
 ```bash
-# Execute the complete empirical benchmark suite and regenerate receipts:
-cd c:\founder-os\sandbox\recalldb
+# Clone the repository and execute the empirical benchmark suite:
+git clone https://github.com/AMV0027/recalldb.git && cd recalldb
 python app/recalldb/bench/cli.py run --dataset syntemp-50 --adapter recalldb_hybrid_temporal
 python app/recalldb/bench/cli.py compare --dataset syntemp-50
 ```
-All raw JSON execution receipts (`receipt_recalldb_hybrid_temporal.json`, `receipt_recalldb_dense_only_notemp.json`, etc.) and the synthesized ablation summary (`ablation_summary.json`) are permanently archived in `c:\founder-os\sandbox\recalldb\research\empirical_paper\experimental_data\`.
+All raw JSON execution receipts (`receipt_recalldb_hybrid_temporal.json`, `receipt_recalldb_dense_only_notemp.json`, etc.) and the synthesized ablation summary (`ablation_summary.json`) are permanently archived in the `research/empirical_paper/experimental_data/` directory.
 
 ---
 

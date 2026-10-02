@@ -57,3 +57,4 @@ Thumbs.db
 # Benchmark Temporary Outputs
 app/bench/runs/
 research/empirical_paper/experimental_data/*.tmp
+research/empirical_paper/preview/

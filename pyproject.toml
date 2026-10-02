@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "recalldb"
 version = "0.1.0"
 authors = [
-  { name = "Arunmozhi Varman", email = "arun@bloombig.agency" },
+  { name = "Arunmozhi Varman K", email = "arunmozhi.varman@bloombig.agency" },
 ]
 description = "A local-first, bitemporal hybrid persistent memory engine for autonomous AI agents."
 readme = "README.md"

@@ -1,8 +1,8 @@
 # RecallDB: A Local-First, Bitemporal Hybrid Engine for Long-Horizon Agent Memory and Decoupled Evaluation
 
-**Arunmozhi Varman**  
-*Senior AI Systems Research Scientist, RecallDB Platform*  
-`research@bloombig.agency` | `c:\founder-os\sandbox\recalldb`
+**Author:** Arunmozhi Varman K  
+**Affiliation:** Bloombig, Coimbatore, Tamil Nadu, India  
+**Email:** arunmozhi.varman@bloombig.agency  
 
 ---
 

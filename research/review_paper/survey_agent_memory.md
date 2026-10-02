@@ -1,7 +1,8 @@
 # Persistent, Temporal, and Hierarchical Memory in Autonomous Agents: A Comprehensive Survey and Taxonomy
 
-**Author:** Academic Survey Author & Lead Research Scientist, Agent Architecture Group  
-**Affiliation:** Autonomous Systems & Cognitive Database Laboratory  
+**Author:** Arunmozhi Varman K  
+**Affiliation:** Bloombig, Coimbatore, Tamil Nadu, India  
+**Email:** arunmozhi.varman@bloombig.agency  
 **Standard / Target Venue:** IEEE Transactions on Knowledge and Data Engineering (TKDE) / ACM Computing Surveys (CSUR)  
 **Date:** October 2026  
 

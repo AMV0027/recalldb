@@ -48,3 +48,79 @@ h1, h2, h3, h4, h5, h6 {
   border: none;
   pointer-events: none;
 }
+
+/* Prism Syntax Highlighting — JetBrains / GitHub Dark Studio Theme */
+.code-block pre,
+.code-block code {
+  font-family: var(--font-mono);
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+  color: #8b949e;
+  font-style: italic;
+}
+
+.token.punctuation {
+  color: #c9d1d9;
+}
+
+.token.property,
+.token.tag,
+.token.constant,
+.token.symbol,
+.token.deleted {
+  color: #79c0ff;
+}
+
+.token.boolean,
+.token.number {
+  color: #ff7b72;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+  color: #7ee787;
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string {
+  color: #79c0ff;
+}
+
+.token.atrule,
+.token.attr-value,
+.token.keyword {
+  color: #d2a8ff;
+  font-weight: 500;
+}
+
+.token.function,
+.token.class-name {
+  color: #ffa657;
+}
+
+.token.regex,
+.token.important,
+.token.variable {
+  color: #79c0ff;
+}
+
+.token.important,
+.token.bold {
+  font-weight: bold;
+}
+
+.token.italic {
+  font-style: italic;
+}
+

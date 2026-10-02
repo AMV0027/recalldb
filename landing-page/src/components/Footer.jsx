@@ -25,7 +25,21 @@ export default function Footer() {
           </div>
 
           {/* Links */}
-          <div className="flex flex-wrap items-center gap-8 text-[13px] text-[#4b5563]" style={{ fontFamily: 'var(--font-sans)' }}>
+          <div className="flex flex-wrap items-center gap-6 text-[13px] text-[#4b5563]" style={{ fontFamily: 'var(--font-sans)' }}>
+            <a
+              href="#papers"
+              className="hover:text-[#166534] transition-colors"
+            >
+              Research Papers
+            </a>
+            <a
+              href="https://drive.google.com/file/d/1WrCthAQfoqUkqT-ApcknIl1vAcW1PZsq/view?usp=drivesdk"
+              target="_blank"
+              rel="noreferrer"
+              className="hover:text-[#166534] transition-colors"
+            >
+              Drive PDF ↗
+            </a>
             <a
               href="https://github.com/AMV0027/recalldb"
               target="_blank"

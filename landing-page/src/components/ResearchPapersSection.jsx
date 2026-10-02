@@ -11,6 +11,7 @@ const papers = [
     abstract: "Formalizes the bitemporal state-machine algebra, embedded SQLite WAL engine architecture, and empirical evaluation on the SynTemp-100 benchmark. Demonstrates +224.7% relative gain in Recall@1 and drops temporal invalidation failure from 69.2% to 0.0% with sub-15ms local retrieval.",
     metrics: "1.0000 Recall@1 · 0.0% E_temp · 11.47ms p50",
     pdfUrl: "/papers/recalldb_empirical_ieee.pdf",
+    driveUrl: "https://drive.google.com/file/d/1WrCthAQfoqUkqT-ApcknIl1vAcW1PZsq/view?usp=drivesdk",
     mdUrl: "https://github.com/AMV0027/recalldb/blob/main/research/empirical_paper/recalldb_empirical.md",
     pages: "12 Pages · IEEE 2-Column PDF"
   },
@@ -22,6 +23,7 @@ const papers = [
     abstract: "A rigorous survey of 12 landmark agent memory systems (MemGPT, LongMemEval, Mem0, HippoRAG, Zep, A-MEM). Uncovers the Four Grand Failures of Vector Memory and establishes a 5-layer taxonomic framework for bitemporal relational state machines.",
     metrics: "12 Systems Evaluated · 4 Failure Modes · Bitemporal DAG",
     pdfUrl: "/papers/survey_agent_memory_ieee.pdf",
+    driveUrl: "https://drive.google.com/file/d/1ARsdQPkns5Ej3_M8PnMK3CTkjIHqJFiG/view?usp=drivesdk",
     mdUrl: "https://github.com/AMV0027/recalldb/blob/main/research/review_paper/survey_agent_memory.md",
     pages: "20 Pages · IEEE 2-Column PDF"
   }
@@ -120,7 +122,15 @@ export default function ResearchPapersSection() {
                   <span>Read IEEE PDF ↗</span>
                 </a>
 
-                <div className="flex items-center gap-4 text-[12px]">
+                <div className="flex items-center gap-3.5 text-[12px]">
+                  <a
+                    href={p.driveUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 text-[#166534] hover:text-[#14532d] font-medium transition-colors"
+                  >
+                    <span>Drive ↗</span>
+                  </a>
                   <a
                     href={p.pdfUrl}
                     download

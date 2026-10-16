@@ -19,6 +19,45 @@ class MemoryType(str, Enum):
     OBSERVATION = "observation"
     RELATIONSHIP = "relationship"
     EXPERIENCE = "experience"
+    CONVERSATION = "conversation"
+    DOCUMENT = "document"
+    TRAJECTORY = "trajectory"
+
+    @classmethod
+    def from_str(cls, value: Any) -> "MemoryType":
+        """Normalize string or aliases to standard MemoryType."""
+        if not value:
+            return cls.FACT
+        if isinstance(value, cls):
+            return value
+        v = str(value).strip().lower()
+        alias_map = {
+            "msg": cls.CONVERSATION,
+            "message": cls.CONVERSATION,
+            "chat": cls.CONVERSATION,
+            "conversation": cls.CONVERSATION,
+            "doc": cls.DOCUMENT,
+            "docs": cls.DOCUMENT,
+            "document": cls.DOCUMENT,
+            "article": cls.DOCUMENT,
+            "chunk": cls.DOCUMENT,
+            "step": cls.TRAJECTORY,
+            "scratchpad": cls.TRAJECTORY,
+            "trajectory": cls.TRAJECTORY,
+            "pref": cls.PREFERENCE,
+            "preference": cls.PREFERENCE,
+            "fact": cls.FACT,
+            "event": cls.EVENT,
+            "observation": cls.OBSERVATION,
+            "relationship": cls.RELATIONSHIP,
+            "experience": cls.EXPERIENCE,
+        }
+        if v in alias_map:
+            return alias_map[v]
+        try:
+            return cls(v)
+        except ValueError:
+            return cls.FACT
 
 
 class MemoryLifecycleState(str, Enum):
@@ -129,7 +168,7 @@ class MemoryRecord:
         return cls(
             id=row["id"],
             content=row["content"],
-            memory_type=MemoryType(row.get("memory_type", "fact")),
+            memory_type=MemoryType.from_str(row.get("memory_type", "fact")),
             lifecycle_state=MemoryLifecycleState(row.get("lifecycle_state", "active")),
             event_time=row.get("event_time"),
             valid_from=row.get("valid_from"),

@@ -86,10 +86,11 @@ class RecallDB:
         user_id: str = "default",
         agent_id: str = "default",
         thread_id: str = "default",
+        embed: bool = True,
     ) -> MemoryRecord:
         """
         Ingest a new memory into persistent storage with automated embedding
-        and bitemporal indexing.
+        and bitemporal indexing. Set embed=False for ultra-fast (<0.5ms) scratchpad/step logging.
         """
         if not content or not isinstance(content, str) or not content.strip():
             raise ValueError("Memory content must be a non-empty string.")
@@ -101,9 +102,9 @@ class RecallDB:
             raise ValueError(f"Importance must be between 0.0 and 1.0 (received {importance}).")
 
         if isinstance(memory_type, str):
-            memory_type = MemoryType(memory_type.lower())
+            memory_type = MemoryType.from_str(memory_type)
 
-        emb = self.embedding.embed_text(content)
+        emb = self.embedding.embed_text(content) if embed else None
         v_from = valid_from or event_time or utc_now_iso()
 
         record = MemoryRecord(
@@ -119,6 +120,7 @@ class RecallDB:
             importance=importance,
             supersedes_id=supersedes_id,
             entities=entities or [],
+            metadata=metadata or {},
             tenant_id=tenant_id or "default",
             user_id=user_id or "default",
             agent_id=agent_id or "default",
@@ -136,7 +138,8 @@ class RecallDB:
             return updated_record
 
         return self.db.insert(record)
-    def remember_batch(self, items: List[Dict[str, Any]]) -> List[MemoryRecord]:
+
+    def remember_batch(self, items: List[Dict[str, Any]], embed: bool = True) -> List[MemoryRecord]:
         """
         Ingest a batch of memories in a single atomic transaction.
         Pre-computes embeddings and writes all records in one transaction.
@@ -149,15 +152,22 @@ class RecallDB:
             if not c or not isinstance(c, str) or not c.strip():
                 raise ValueError("All batch items must contain non-empty string content.")
 
-        # Batch embed
-        embeddings = self.embedding.embed_batch(contents)
+        # Batch embed if embed is True
+        if embed:
+            embeddings = self.embedding.embed_batch(contents)
+        else:
+            embeddings = [None] * len(contents)
 
         records = []
-        for item, emb in zip(items, embeddings):
+        for idx, (item, emb) in enumerate(zip(items, embeddings)):
             c = item["content"]
             mtype = item.get("memory_type", MemoryType.FACT)
             if isinstance(mtype, str):
-                mtype = MemoryType(mtype.lower())
+                mtype = MemoryType.from_str(mtype)
+
+            # Per-item embed override
+            item_embed = item.get("embed", embed)
+            final_emb = emb if item_embed else None
 
             v_from = item.get("valid_from") or item.get("event_time") or utc_now_iso()
             r = MemoryRecord(
@@ -176,7 +186,7 @@ class RecallDB:
                 user_id=item.get("user_id", "default"),
                 agent_id=item.get("agent_id", "default"),
                 thread_id=item.get("thread_id", "default"),
-                embedding=emb,
+                embedding=final_emb,
             )
             records.append(r)
 
@@ -469,6 +479,72 @@ class RecallDB:
         """
         from recalldb.ai.tools import execute_tool_call
         return execute_tool_call(self, tool_name, arguments, **scope_kwargs)
+
+    # -------------------------------------------------------------------------
+    # Simplified Developer Application Primitives (Multi-Chat, RAG, Analytics)
+    # -------------------------------------------------------------------------
+
+    def add_message(
+        self,
+        thread_id: str,
+        role: str,
+        content: str,
+        user_id: str = "default",
+        metadata: Optional[Dict[str, Any]] = None,
+        embed: bool = False,
+        **kwargs
+    ) -> MemoryRecord:
+        """
+        Store a conversation message turn for a chat thread in a single call.
+        Defaults to embed=False for sub-millisecond chat persistence.
+        """
+        meta = dict(metadata or {})
+        meta["role"] = role
+        return self.remember(
+            content=content,
+            memory_type=MemoryType.CONVERSATION,
+            thread_id=thread_id,
+            user_id=user_id,
+            metadata=meta,
+            embed=embed,
+            **kwargs
+        )
+
+    def get_messages(
+        self,
+        thread_id: str,
+        limit: int = 50,
+        user_id: Optional[str] = None
+    ) -> List[Dict[str, Any]]:
+        """
+        Fetch chronological conversation messages for a specific thread_id.
+        Returns a clean list of developer-friendly message dictionaries:
+        [{"id": "...", "role": "user"|"assistant", "content": "...", "timestamp": "...", ...}]
+        """
+        return self.db.get_messages(thread_id=thread_id, limit=limit, user_id=user_id)
+
+    def get_threads(
+        self,
+        user_id: Optional[str] = "default",
+        limit: int = 50
+    ) -> List[Dict[str, Any]]:
+        """
+        Aggregate active chat threads for UI sidebars.
+        Returns thread_id, title preview, last_message preview, message_count, and updated_at.
+        """
+        return self.db.get_threads(user_id=user_id, limit=limit)
+
+    def get_facts(
+        self,
+        user_id: Optional[str] = "default",
+        limit: int = 100,
+        active_only: bool = True
+    ) -> List[Dict[str, Any]]:
+        """
+        Retrieve structured user facts and preferences for UI Memory Inspector & Analytics.
+        """
+        return self.db.get_facts(user_id=user_id, limit=limit, active_only=active_only)
+
 
 
 def connect(

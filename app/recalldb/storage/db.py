@@ -510,3 +510,163 @@ class Database:
             return {row["id"] for row in cur.fetchall()}
         finally:
             conn.close()
+
+    def get_messages(
+        self,
+        thread_id: str,
+        limit: int = 50,
+        user_id: Optional[str] = None
+    ) -> List[Dict[str, Any]]:
+        """
+        Fetch chronological conversation messages for a specific thread_id.
+        Returns a clean list of developer-friendly message dictionaries.
+        """
+        clauses = ["thread_id = ?", "lifecycle_state != 'archived'"]
+        params: List[Any] = [thread_id]
+        if user_id:
+            clauses.append("user_id = ?")
+            params.append(user_id)
+
+        where_sql = " AND ".join(clauses)
+        sql = f"""
+        SELECT id, content, recorded_at, metadata, user_id, thread_id
+        FROM memories
+        WHERE {where_sql}
+        ORDER BY recorded_at ASC
+        LIMIT ?
+        """
+        params.append(limit)
+
+        with self.get_connection() as conn:
+            cur = conn.execute(sql, params)
+            results = []
+            for row in cur.fetchall():
+                meta = {}
+                if row["metadata"]:
+                    try:
+                        meta = json.loads(row["metadata"])
+                    except Exception:
+                        meta = {}
+                role = meta.get("role", "user")
+                results.append({
+                    "id": row["id"],
+                    "role": role,
+                    "content": row["content"],
+                    "timestamp": row["recorded_at"],
+                    "thread_id": row["thread_id"],
+                    "user_id": row["user_id"],
+                    "metadata": meta,
+                })
+            return results
+
+    def get_threads(
+        self,
+        user_id: Optional[str] = "default",
+        limit: int = 50
+    ) -> List[Dict[str, Any]]:
+        """
+        Aggregate active chat threads for UI sidebars.
+        Returns thread_id, first message preview (title), last message preview, message count, and updated_at.
+        """
+        clauses = ["thread_id != 'default'", "lifecycle_state != 'archived'"]
+        params: List[Any] = []
+        if user_id and user_id != "*":
+            clauses.append("user_id = ?")
+            params.append(user_id)
+
+        where_sql = " AND ".join(clauses)
+        sql = f"""
+        SELECT
+            thread_id,
+            COUNT(*) as message_count,
+            MIN(recorded_at) as created_at,
+            MAX(recorded_at) as updated_at,
+            (
+                SELECT content FROM memories m2
+                WHERE m2.thread_id = m.thread_id
+                ORDER BY recorded_at ASC LIMIT 1
+            ) as title,
+            (
+                SELECT content FROM memories m3
+                WHERE m3.thread_id = m.thread_id
+                ORDER BY recorded_at DESC LIMIT 1
+            ) as last_message
+        FROM memories m
+        WHERE {where_sql}
+        GROUP BY thread_id
+        ORDER BY updated_at DESC
+        LIMIT ?
+        """
+        params.append(limit)
+
+        with self.get_connection() as conn:
+            cur = conn.execute(sql, params)
+            threads = []
+            for row in cur.fetchall():
+                threads.append({
+                    "thread_id": row["thread_id"],
+                    "title": row["title"] or "New Conversation",
+                    "last_message": row["last_message"] or "",
+                    "message_count": row["message_count"],
+                    "created_at": row["created_at"],
+                    "updated_at": row["updated_at"],
+                })
+            return threads
+
+    def get_facts(
+        self,
+        user_id: Optional[str] = "default",
+        limit: int = 100,
+        active_only: bool = True
+    ) -> List[Dict[str, Any]]:
+        """
+        Retrieve structured user facts and preferences for UI Memory Inspector & Analytics.
+        """
+        clauses = ["memory_type IN ('fact', 'preference', 'observation', 'relationship')"]
+        params: List[Any] = []
+        if active_only:
+            clauses.append("lifecycle_state = 'active'")
+        else:
+            clauses.append("lifecycle_state != 'archived'")
+
+        if user_id and user_id != "*":
+            clauses.append("user_id = ?")
+            params.append(user_id)
+
+        where_sql = " AND ".join(clauses)
+        sql = f"""
+        SELECT id, content, memory_type, lifecycle_state, valid_from, valid_until,
+               recorded_at, confidence, importance, source, user_id, entities
+        FROM memories
+        WHERE {where_sql}
+        ORDER BY recorded_at DESC
+        LIMIT ?
+        """
+        params.append(limit)
+
+        with self.get_connection() as conn:
+            cur = conn.execute(sql, params)
+            facts = []
+            for row in cur.fetchall():
+                ents = []
+                if row["entities"]:
+                    try:
+                        ents = json.loads(row["entities"])
+                    except Exception:
+                        ents = []
+                facts.append({
+                    "id": row["id"],
+                    "content": row["content"],
+                    "type": row["memory_type"],
+                    "state": row["lifecycle_state"],
+                    "valid_from": row["valid_from"],
+                    "valid_until": row["valid_until"],
+                    "recorded_at": row["recorded_at"],
+                    "confidence": row["confidence"],
+                    "importance": row["importance"],
+                    "source": row["source"],
+                    "user_id": row["user_id"],
+                    "entities": ents,
+                })
+            return facts
+

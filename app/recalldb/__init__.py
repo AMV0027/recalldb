@@ -25,7 +25,7 @@ from recalldb.retrieval.temporal import TemporalEvaluator
 from recalldb.retrieval.hybrid import HybridRetriever
 from recalldb.provenance.tracker import ProvenanceTracker
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 
 class RecallDB:

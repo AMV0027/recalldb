@@ -1,8 +1,8 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="recalldb",
-    version="0.1.0",
+    name="recalldb-ai",
+    version="0.2.0",
     package_dir={"": "app"},
     packages=find_packages(where="app"),
     package_data={

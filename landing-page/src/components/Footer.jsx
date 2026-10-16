@@ -47,7 +47,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-8 pt-6 border-t border-[#f3f4f6] text-[11px] text-[#9ca3af] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2" style={{ fontFamily: 'var(--font-sans)' }}>
-          <span>RecallDB v0.1.0 — All benchmark data is fully reproducible.</span>
+          <span>RecallDB v0.2.0 — All benchmark data is fully reproducible.</span>
           <span>© 2026 Arunmozhi Varman</span>
         </div>
       </div>

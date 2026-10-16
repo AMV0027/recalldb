@@ -133,6 +133,37 @@ result = db.execute_tool("recall_memory", {"query": "database configuration"})
 
 ---
 
+## 🚀 Developer Application Primitives (v0.2.0)
+
+Build production chat applications, unified RAG, fast agentic scratchpads, and memory inspection dashboards with 4 simple primitives:
+
+```python
+import recalldb
+
+db = recalldb.connect()
+
+# 1. Multi-Chat Persistence & Sidebars
+db.add_message(thread_id="chat-1", role="user", content="We use React and Tailwind CSS.")
+db.add_message(thread_id="chat-1", role="assistant", content="Tailwind CSS v4 is configured.")
+
+messages = db.get_messages(thread_id="chat-1")   # Chronological message list
+threads = db.get_threads()                        # Sidebar list with previews & counts
+
+# 2. Fast Agent Trajectories (< 0.5ms logging)
+# Set embed=False to skip vector compute on intermediate tool steps/scratchpads
+db.remember("Step 1: npm run build -> Success", embed=False, memory_type="trajectory")
+
+# 3. Unified Bitemporal RAG
+db.remember("Refund policy: 14-day money-back guarantee.", memory_type="doc")
+docs = db.recall("refund policy", filter_types=["document"])
+
+# 4. User Memory Inspector & GDPR Erasure
+facts = db.get_facts(user_id="default", active_only=True)  # Feed for UI inspector
+db.delete(facts[0]["id"])                                  # "Forget this" hard deletion
+```
+
+---
+
 ## 🕰️ Bitemporal Time Travel & Zero Contradiction Collapse
 
 Unlike flat vector databases that suffer from temporal blindness and overwrite prior reality, RecallDB preserves an immutable historical audit trail:

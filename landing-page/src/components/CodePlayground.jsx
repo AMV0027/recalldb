@@ -269,7 +269,7 @@ export default function CodePlayground() {
 
           {/* Minimal Footer */}
           <div className="px-4 py-2.5 border-t border-[#e5e7eb] bg-[#fafafa] flex flex-wrap items-center justify-between text-[11px] text-[#6b7280]" style={{ fontFamily: 'var(--font-sans)' }}>
-            <span className="font-mono text-[#166534] font-medium">recalldb v0.1.0 — embedded, zero-daemon</span>
+            <span className="font-mono text-[#166534] font-medium">recalldb v0.2.0 — embedded, zero-daemon</span>
             <span>Supports: Ollama · OpenAI · Claude · LangChain</span>
           </div>
         </motion.div>

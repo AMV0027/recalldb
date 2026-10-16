@@ -10,7 +10,8 @@ import json
 import struct
 import time
 from pathlib import Path
-from typing import Set, List, Optional, Tuple, Dict, Any, Callable
+from contextlib import contextmanager
+from typing import Set, List, Optional, Tuple, Dict, Any, Callable, Generator
 from recalldb.core.memory import MemoryRecord, MemoryLifecycleState, utc_now_iso
 from recalldb.core.lifecycle import MemoryLifecycleManager
 
@@ -69,6 +70,16 @@ class Database:
         conn.execute("PRAGMA busy_timeout = 10000;")  # 10s busy timeout
         conn.execute("PRAGMA cache_size = -64000;")   # 64MB cache
         return conn
+
+    @contextmanager
+    def connection(self) -> Generator[sqlite3.Connection, None, None]:
+        """Context manager yielding a transaction-safe SQLite connection that closes deterministically upon exit."""
+        conn = self.get_connection()
+        try:
+            with conn:
+                yield conn
+        finally:
+            conn.close()
 
     def get_data_version(self) -> int:
         """Return combined SQLite PRAGMA data_version and internal write version."""
@@ -151,7 +162,7 @@ class Database:
             CREATE INDEX IF NOT EXISTS idx_memories_scope_state ON memories(tenant_id, user_id, lifecycle_state);
             """
 
-        with self.get_connection() as conn:
+        with self.connection() as conn:
             conn.executescript(ddl)
             # Automatic schema migration check for existing databases
             cur = conn.execute("PRAGMA table_info(memories);")
@@ -185,7 +196,7 @@ class Database:
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """
 
-        with self.get_connection() as conn:
+        with self.connection() as conn:
             conn.execute(sql, (
                 record.id,
                 record.content,
@@ -253,7 +264,7 @@ class Database:
                 r.thread_id or "default",
                 blob
             ))
-        with self.get_connection() as conn:
+        with self.connection() as conn:
             conn.executemany(sql, rows)
             conn.commit()
         self._write_version += 1
@@ -261,7 +272,7 @@ class Database:
 
     def get(self, memory_id: str) -> Optional[MemoryRecord]:
         """Retrieve a MemoryRecord by its ID."""
-        with self.get_connection() as conn:
+        with self.connection() as conn:
             cur = conn.cursor()
             cur.execute("SELECT * FROM memories WHERE id = ?", (memory_id,))
             row = cur.fetchone()
@@ -283,7 +294,7 @@ class Database:
         results = {}
         # Batch in chunks of 500 to stay well under SQLite variable limit
         chunk_size = 500
-        with self.get_connection() as conn:
+        with self.connection() as conn:
             for i in range(0, len(memory_ids), chunk_size):
                 chunk = memory_ids[i:i + chunk_size]
                 placeholders = ",".join("?" for _ in chunk)
@@ -299,7 +310,7 @@ class Database:
     def get_recent(self, limit: int = 20) -> List[MemoryRecord]:
         """Fetch most recently recorded memories up to limit."""
         records = []
-        with self.get_connection() as conn:
+        with self.connection() as conn:
             cur = conn.execute(
                 "SELECT * FROM memories ORDER BY recorded_at DESC LIMIT ?",
                 (limit,)
@@ -341,7 +352,7 @@ class Database:
         WHERE id = ?
         """
 
-        with self.get_connection() as conn:
+        with self.connection() as conn:
             conn.execute(sql, (
                 record.content,
                 record.memory_type.value if hasattr(record.memory_type, "value") else str(record.memory_type),
@@ -386,7 +397,7 @@ class Database:
             effective_time=effective_time
         )
 
-        with self.get_connection() as conn:
+        with self.connection() as conn:
             # Update existing
             conn.execute("""
             UPDATE memories SET
@@ -443,21 +454,21 @@ class Database:
     @retry_on_lock()
     def delete(self, memory_id: str) -> bool:
         """Hard delete a memory record and its FTS entry."""
-        with self.get_connection() as conn:
+        with self.connection() as conn:
             cur = conn.execute("DELETE FROM memories WHERE id = ?", (memory_id,))
             conn.commit()
             return cur.rowcount > 0
 
     def count(self) -> int:
         """Return total memory count."""
-        with self.get_connection() as conn:
+        with self.connection() as conn:
             cur = conn.execute("SELECT count(*) FROM memories")
             return cur.fetchone()[0]
 
     def all_memories(self) -> List[MemoryRecord]:
         """Fetch all memories with hydrated embeddings."""
         records = []
-        with self.get_connection() as conn:
+        with self.connection() as conn:
             cur = conn.execute("SELECT * FROM memories ORDER BY recorded_at ASC")
             for row in cur.fetchall():
                 r = MemoryRecord.from_row(dict(row))
@@ -537,7 +548,7 @@ class Database:
         """
         params.append(limit)
 
-        with self.get_connection() as conn:
+        with self.connection() as conn:
             cur = conn.execute(sql, params)
             results = []
             for row in cur.fetchall():
@@ -599,7 +610,7 @@ class Database:
         """
         params.append(limit)
 
-        with self.get_connection() as conn:
+        with self.connection() as conn:
             cur = conn.execute(sql, params)
             threads = []
             for row in cur.fetchall():
@@ -644,7 +655,7 @@ class Database:
         """
         params.append(limit)
 
-        with self.get_connection() as conn:
+        with self.connection() as conn:
             cur = conn.execute(sql, params)
             facts = []
             for row in cur.fetchall():
